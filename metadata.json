@@ -1,0 +1,8 @@
+{
+  "name": "Kravo Platnumz Media",
+  "description": "A fully functional, mobile-responsive news website and CMS dedicated to cue sports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
