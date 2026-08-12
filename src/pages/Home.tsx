@@ -103,7 +103,7 @@ export function Home() {
       {/* Hero Section */}
       {heroArticle && (
         <section className="mb-12">
-          <Link to={`/article/${heroArticle.slug}`} className="group relative block overflow-hidden aspect-[21/9] bg-[var(--bg-input)] border-b border-[var(--border-hover)] shrink-0">
+          <Link to={`/article/${heroArticle.slug}`} className="group relative block overflow-hidden aspect-[4/3] md:aspect-[21/9] bg-[var(--bg-input)] border-b border-[var(--border-hover)] shrink-0">
             {heroArticle.coverImage ? (
               <img 
                 src={heroArticle.coverImage} 
@@ -115,7 +115,7 @@ export function Home() {
               <div className="absolute inset-0 bg-[#222] opacity-80" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #333 0, #333 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
-            <div className="absolute bottom-0 left-0 p-8 md:p-12 md:w-2/3 z-20">
+            <div className="absolute bottom-0 left-0 p-4 md:p-12 md:w-2/3 z-20">
               <div className="flex gap-2 mb-4">
                 {heroArticle.categories.slice(0,2).map(cat => (
                   <span key={cat} className="bg-[var(--accent)] text-[var(--accent-text)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest">
@@ -149,10 +149,10 @@ export function Home() {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-0 md:gap-6 border-t md:border-t-0 border-[var(--border-hover)]">
             {recentArticles.map(article => (
-              <Link key={article.id} to={`/article/${article.slug}`} className="group flex flex-col h-full bg-[var(--bg-card)] border border-white/5 p-4 hover:border-[var(--border-hover)] transition-colors cursor-pointer">
-                <div className="aspect-[16/9] bg-[var(--bg-input)] overflow-hidden relative mb-3">
+              <Link key={article.id} to={`/article/${article.slug}`} className="group flex flex-row md:flex-col h-full bg-[var(--bg-main)] md:bg-[var(--bg-card)] border-b md:border border-[var(--border-hover)] md:border-white/5 py-4 md:p-4 hover:bg-[var(--bg-card)] md:hover:border-[var(--border-hover)] transition-colors cursor-pointer gap-4 md:gap-0">
+                <div className="w-[100px] h-[100px] md:w-full md:aspect-[16/9] md:h-auto bg-[var(--bg-input)] overflow-hidden relative md:mb-3 shrink-0 rounded-sm md:rounded-none">
                   {article.coverImage && (
                     <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   )}
@@ -162,18 +162,18 @@ export function Home() {
                     </div>
                   )}
                 </div>
-                <div className="flex-1 flex flex-col">
-                  <span className="text-[9px] uppercase font-bold text-blue-400 tracking-wider mb-2">
+                <div className="flex-1 flex flex-col justify-center md:justify-start">
+                  <span className="text-[10px] uppercase font-bold text-[var(--accent)] tracking-wider mb-1">
                     {article.categories[0]}
                   </span>
-                  <h3 className="text-sm font-bold text-[var(--text-main)] mb-2 group-hover:text-[var(--text-main)] transition-colors line-clamp-2">
+                  <h3 className="text-[15px] md:text-sm font-bold text-[var(--text-main)] mb-1 md:mb-2 group-hover:text-[var(--accent)] transition-colors line-clamp-3 md:line-clamp-2 leading-tight">
                     {article.title}
                   </h3>
-                  <p className="text-[11px] text-[var(--text-main)]/50 mb-4 line-clamp-2 flex-1 leading-relaxed">
+                  <p className="hidden md:block text-[11px] text-[var(--text-main)]/50 mb-4 line-clamp-2 flex-1 leading-relaxed">
                     {article.excerpt}
                   </p>
-                  <div className="text-[10px] text-[var(--text-main)]/40 font-medium">
-                    {format(new Date(article.createdAt), 'MMM d, yyyy')}
+                  <div className="text-[11px] md:text-[10px] text-[var(--text-main)]/50 md:text-[var(--text-main)]/40 font-medium flex items-center gap-1 mt-1 md:mt-0">
+                    <span className="md:hidden opacity-50">🕒</span> {format(new Date(article.createdAt), 'MMM d, yyyy')}
                   </div>
                 </div>
               </Link>
@@ -213,14 +213,14 @@ export function Home() {
              <div className="absolute inset-0 flex items-center justify-center opacity-10">
                 <div className="w-full h-full" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #444 0, #444 1px, transparent 0, transparent 10px)' }}></div>
              </div>
-            <div className="w-16 h-16 bg-[var(--accent)] text-[var(--accent-text)] rounded-sm flex items-center justify-center font-black text-3xl mb-4 relative z-10">
-              KP
+            <div className="w-16 h-16 bg-[#25D366] text-white rounded-sm flex items-center justify-center font-black text-3xl mb-4 relative z-10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>
             </div>
-            <h3 className="text-[var(--text-main)] font-bold text-lg uppercase mb-2 relative z-10">Join The Community</h3>
-            <p className="text-[11px] text-[var(--text-main)]/50 mb-6 leading-relaxed relative z-10">Subscribe for the latest cue sports updates straight to your inbox.</p>
-            <button className="bg-[#e5e5e5] text-[var(--accent-text)] font-black px-6 py-3 hover:bg-white transition-colors w-full uppercase text-[10px] tracking-widest relative z-10">
-              Subscribe Now
-            </button>
+            <h3 className="text-[var(--text-main)] font-bold text-lg uppercase mb-2 relative z-10">Join Our Community</h3>
+            <p className="text-[11px] text-[var(--text-main)]/50 mb-6 leading-relaxed relative z-10">Get the latest cue sports updates and live stream alerts straight to your WhatsApp.</p>
+            <a href="https://whatsapp.com/channel/0029Va8ZB5LJpe8fqDvigx3O" target="_blank" rel="noopener noreferrer" className="bg-[#25D366] text-white font-black px-6 py-3 hover:bg-[#128C7E] transition-colors w-full uppercase text-[10px] tracking-widest relative z-10 block text-center">
+              Join WhatsApp Channel
+            </a>
           </div>
         </aside>
       </div>

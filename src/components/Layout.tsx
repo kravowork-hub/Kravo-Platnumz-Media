@@ -123,7 +123,7 @@ export function Layout() {
               <ul className="space-y-2 text-sm">
                 <li><a href="#" className="hover:text-blue-400">Twitter</a></li>
                 <li><a href="#" className="hover:text-blue-400">Facebook</a></li>
-                <li><a href="#" className="hover:text-blue-400">WhatsApp</a></li>
+                <li><a href="https://whatsapp.com/channel/0029Va8ZB5LJpe8fqDvigx3O" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">WhatsApp</a></li>
                 <li className="mt-4"><Link to="/admin" className="text-gray-600 hover:text-gray-300 text-xs uppercase tracking-widest">Admin Login</Link></li>
               </ul>
             </div>
