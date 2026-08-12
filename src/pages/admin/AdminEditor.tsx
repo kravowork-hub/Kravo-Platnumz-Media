@@ -68,37 +68,13 @@ export function AdminEditor() {
     if (!aiTopic) return alert('Please enter a topic to research');
     setIsGenerating(true);
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) throw new Error("VITE_GEMINI_API_KEY is not configured in your environment.");
-
-      // Dynamically import to avoid breaking the initial bundle if not needed immediately
-      const { GoogleGenAI } = await import('@google/genai');
-      const ai = new GoogleGenAI({ apiKey });
-
-      const prompt = `You are an expert news writer and cue sports journalist. Please research (simulate if needed) and write a comprehensive, engaging article about the following topic or headline: "${aiTopic}". Focus on professional pool, snooker, or billiards if the topic implies it.
-    
-    Please return ONLY a JSON object with the following fields:
-    {
-      "title": "A catchy, SEO-friendly headline",
-      "excerpt": "A 2-3 sentence summary of the article",
-      "content": "The full article content formatted as HTML (using <h2>, <p>, <strong>, etc.). Write at least 4-5 paragraphs. Make it look good for a rich text editor."
-    }
-    
-    Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        }
+      const res = await fetch('/api/generate-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: aiTopic })
       });
-
-      if (!response.text) {
-        throw new Error("Failed to generate content");
-      }
-
-      const data = JSON.parse(response.text);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to generate');
       
       if (data.title) setTitle(data.title);
       if (data.excerpt) setExcerpt(data.excerpt);
@@ -118,40 +94,13 @@ export function AdminEditor() {
     
     setIsEditingAi(true);
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) throw new Error("VITE_GEMINI_API_KEY is not configured in your environment.");
-
-      const { GoogleGenAI } = await import('@google/genai');
-      const ai = new GoogleGenAI({ apiKey });
-
-      const prompt = `You are an expert news writer and editor. Please edit the following article based on this instruction: "${aiEditInstruction}".
-    
-    Current Title: ${title || "(Empty)"}
-    Current Excerpt: ${excerpt || "(Empty)"}
-    Current Content: ${content || "(Empty)"}
-    
-    Please apply the requested changes and return ONLY a JSON object with the following fields:
-    {
-      "title": "The updated title (or keep the original if no change needed)",
-      "excerpt": "The updated excerpt (or keep the original if no change needed)",
-      "content": "The updated full article content formatted as HTML (using <h2>, <p>, <strong>, etc.)"
-    }
-    
-    Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        }
+      const res = await fetch('/api/edit-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, excerpt, content, instruction: aiEditInstruction })
       });
-
-      if (!response.text) {
-        throw new Error("Failed to edit content");
-      }
-
-      const data = JSON.parse(response.text);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to edit');
       
       if (data.title) setTitle(data.title);
       if (data.excerpt) setExcerpt(data.excerpt);
