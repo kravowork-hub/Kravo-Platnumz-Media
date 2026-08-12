@@ -19,12 +19,12 @@ export function AdminLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#e5e5e5] font-sans flex">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-sans flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#0a0a0a] border-r border-white/10 flex flex-col hidden md:flex">
-        <div className="h-16 flex items-center px-6 border-b border-white/10">
+      <aside className="w-64 bg-[var(--bg-card)] border-r border-[var(--border-color)] flex flex-col hidden md:flex">
+        <div className="h-16 flex items-center px-6 border-b border-[var(--border-color)]">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#C0C0C0] text-black rounded-sm flex items-center justify-center font-black text-xs">
+            <div className="w-6 h-6 bg-[var(--accent)] text-black rounded-sm flex items-center justify-center font-black text-xs">
               KP
             </div>
             <span className="font-bold text-sm tracking-tight uppercase text-white">Media CMS</span>
@@ -51,7 +51,7 @@ export function AdminLayout() {
             )
           })}
         </nav>
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-[var(--border-color)]">
           <button 
             onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2 text-[11px] uppercase tracking-widest font-bold text-white/50 hover:bg-white/5 hover:text-white rounded-sm w-full transition-colors"
@@ -64,7 +64,7 @@ export function AdminLayout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <header className="h-16 bg-[#0a0a0a] border-b border-white/10 flex items-center justify-between px-6 md:hidden">
+        <header className="h-16 bg-[var(--bg-card)] border-b border-[var(--border-color)] flex items-center justify-between px-6 md:hidden">
           <span className="font-bold text-white uppercase tracking-widest text-[11px]">KP CMS</span>
           <button onClick={handleLogout} className="p-2 text-white/50 hover:bg-white/10 rounded-sm">
             <LogOut size={20} />

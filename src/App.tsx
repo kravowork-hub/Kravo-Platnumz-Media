@@ -15,6 +15,7 @@ import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminArticles } from './pages/admin/AdminArticles';
 import { AdminEditor } from './pages/admin/AdminEditor';
+import { ThemeSwitcher } from './components/ThemeSwitcher';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -29,6 +30,7 @@ export default function App() {
   return (
     <AuthProvider>
       <Router>
+        <ThemeSwitcher />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Layout />}>

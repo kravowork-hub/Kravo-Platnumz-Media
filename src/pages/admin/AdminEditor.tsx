@@ -157,17 +157,17 @@ export function AdminEditor() {
 
   return (
     <div className="max-w-5xl mx-auto pb-12">
-      <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
+      <div className="flex items-center justify-between mb-8 border-b border-[var(--border-color)] pb-4">
         <div className="flex items-center gap-4">
           <Link to="/admin/articles" className="p-2 hover:bg-white/10 rounded-sm transition-colors">
             <ArrowLeft size={20} className="text-white/60" />
           </Link>
-          <h1 className="text-2xl font-black uppercase tracking-widest text-white">{id && id !== 'new' ? 'Edit Article' : 'New Article'}</h1>
+          <h1 className="text-[var(--text-dark)]xl font-black uppercase tracking-widest text-white">{id && id !== 'new' ? 'Edit Article' : 'New Article'}</h1>
         </div>
         <button 
           onClick={handleSave}
           disabled={loading}
-          className="flex items-center gap-2 bg-[#C0C0C0] text-black px-6 py-2 rounded-sm text-[11px] font-black uppercase tracking-widest hover:bg-white transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 bg-[var(--accent)] text-black px-6 py-2 rounded-sm text-[11px] font-black uppercase tracking-widest hover:bg-white transition-colors disabled:opacity-50"
         >
           <Save size={16} />
           {loading ? 'Saving...' : 'Save'}
@@ -177,19 +177,19 @@ export function AdminEditor() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Editor Area */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-[#0a0a0a] p-6 rounded-sm border border-white/10">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-[#C0C0C0] mb-2">Title</label>
+          <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-[var(--border-color)]">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--accent)] mb-2">Title</label>
             <input 
               type="text" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 border border-white/10 bg-[#111] text-white rounded-sm focus:outline-none focus:border-white/40 font-bold text-lg"
+              className="w-full px-4 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-white/40 font-bold text-lg"
               placeholder="Article Title"
             />
           </div>
 
-          <div className="bg-[#0a0a0a] p-6 rounded-sm border border-white/10">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-[#C0C0C0] mb-4">Content</label>
+          <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-[var(--border-color)]">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--accent)] mb-4">Content</label>
             <div className="h-96 pb-12 rounded-sm overflow-hidden">
               <RichTextEditor 
                 value={content} 
@@ -198,13 +198,13 @@ export function AdminEditor() {
             </div>
           </div>
           
-          <div className="bg-[#0a0a0a] p-6 rounded-sm border border-white/10">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-[#C0C0C0] mb-2">Excerpt (for homepage & SEO)</label>
+          <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-[var(--border-color)]">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--accent)] mb-2">Excerpt (for homepage & SEO)</label>
             <textarea 
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-white/10 bg-[#111] text-white rounded-sm focus:outline-none focus:border-white/40"
+              className="w-full px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-white/40"
               placeholder="Brief summary of the article..."
             />
           </div>
@@ -212,7 +212,7 @@ export function AdminEditor() {
 
         {/* Sidebar Settings */}
         <div className="space-y-6">
-          <div className="bg-[#0a0a0a] p-6 rounded-sm border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+          <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
             <h3 className="flex items-center gap-2 font-black uppercase tracking-widest text-purple-400 mb-4">
               <Sparkles size={16} />
               AI Journalist
@@ -224,7 +224,7 @@ export function AdminEditor() {
               type="text" 
               value={aiTopic}
               onChange={(e) => setAiTopic(e.target.value)}
-              className="w-full mb-4 px-3 py-2 border border-white/10 bg-[#111] text-white rounded-sm focus:outline-none focus:border-purple-500/50"
+              className="w-full mb-4 px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-purple-500/50"
               placeholder="e.g. Latest 8-Ball World Championship Results"
             />
             <button
@@ -236,7 +236,7 @@ export function AdminEditor() {
             </button>
           </div>
 
-          <div className="bg-[#0a0a0a] p-6 rounded-sm border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+          <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
             <h3 className="flex items-center gap-2 font-black uppercase tracking-widest text-blue-400 mb-4">
               <Wand2 size={16} />
               AI Editor
@@ -248,7 +248,7 @@ export function AdminEditor() {
               value={aiEditInstruction}
               onChange={(e) => setAiEditInstruction(e.target.value)}
               rows={3}
-              className="w-full mb-4 px-3 py-2 border border-white/10 bg-[#111] text-white rounded-sm focus:outline-none focus:border-blue-500/50"
+              className="w-full mb-4 px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-blue-500/50"
               placeholder="e.g. Make the tone more professional and expand the conclusion."
             />
             <button
@@ -260,26 +260,26 @@ export function AdminEditor() {
             </button>
           </div>
 
-          <div className="bg-[#0a0a0a] p-6 rounded-sm border border-white/10">
+          <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-[var(--border-color)]">
             <h3 className="font-black uppercase tracking-widest text-white mb-4">Publishing</h3>
             
-            <label className="block text-[10px] font-black uppercase tracking-widest text-[#C0C0C0] mb-2">Status</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--accent)] mb-2">Status</label>
             <select 
               value={status} 
               onChange={(e) => setStatus(e.target.value as any)}
-              className="w-full mb-4 px-3 py-2 border border-white/10 bg-[#111] text-white rounded-sm focus:outline-none focus:border-white/40"
+              className="w-full mb-4 px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-white/40"
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
               <option value="scheduled">Scheduled</option>
             </select>
             
-            <label className="block text-[10px] font-black uppercase tracking-widest text-[#C0C0C0] mb-2">Cover Image URL</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--accent)] mb-2">Cover Image URL</label>
             <input 
               type="url" 
               value={coverImage}
               onChange={(e) => setCoverImage(e.target.value)}
-              className="w-full px-3 py-2 border border-white/10 bg-[#111] text-white rounded-sm focus:outline-none focus:border-white/40"
+              className="w-full px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-white/40"
               placeholder="https://..."
             />
             {coverImage && (
@@ -290,7 +290,7 @@ export function AdminEditor() {
                     alt="Cover preview" 
                     referrerPolicy="no-referrer"
                     onError={() => setImageError(true)}
-                    className="w-full h-32 object-cover rounded-sm border border-white/10" 
+                    className="w-full h-32 object-cover rounded-sm border border-[var(--border-color)]" 
                   />
                 ) : (
                   <div className="w-full h-32 bg-[#1a1a1a] flex flex-col items-center justify-center rounded-sm border border-red-500/50 text-red-400">
@@ -306,7 +306,7 @@ export function AdminEditor() {
             )}
           </div>
 
-          <div className="bg-[#0a0a0a] p-6 rounded-sm border border-white/10">
+          <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-[var(--border-color)]">
             <h3 className="font-black uppercase tracking-widest text-white mb-4">Categories</h3>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {CATEGORIES.map(category => (
@@ -315,7 +315,7 @@ export function AdminEditor() {
                     type="checkbox" 
                     checked={selectedCategories.includes(category)}
                     onChange={() => handleCategoryChange(category)}
-                    className="rounded-sm bg-[#111] border-white/10 text-white focus:ring-white/40"
+                    className="rounded-sm bg-[var(--bg-input)] border-[var(--border-color)] text-white focus:ring-white/40"
                   />
                   <span className="text-[11px] font-bold text-white/60 group-hover:text-white transition-colors uppercase">{category}</span>
                 </label>
@@ -323,13 +323,13 @@ export function AdminEditor() {
             </div>
           </div>
           
-          <div className="bg-[#0a0a0a] p-6 rounded-sm border border-white/10">
+          <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-[var(--border-color)]">
             <h3 className="font-black uppercase tracking-widest text-white mb-4">Tags</h3>
             <input 
               type="text" 
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              className="w-full px-3 py-2 border border-white/10 bg-[#111] text-white rounded-sm focus:outline-none focus:border-white/40"
+              className="w-full px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-white/40"
               placeholder="e.g. pool, tournament, final (comma separated)"
             />
           </div>

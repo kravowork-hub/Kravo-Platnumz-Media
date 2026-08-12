@@ -20,8 +20,8 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#111] rounded-sm border border-white/10 overflow-hidden">
-      <div className="flex flex-wrap items-center gap-1 p-2 bg-[#1a1a1a] border-b border-white/10">
+    <div className="flex flex-col h-full bg-[var(--bg-input)] rounded-sm border border-[var(--border-color)] overflow-hidden">
+      <div className="flex flex-wrap items-center gap-1 p-2 bg-[#1a1a1a] border-b border-[var(--border-color)]">
         <button
           type="button"
           onClick={() => execCommand('bold')}

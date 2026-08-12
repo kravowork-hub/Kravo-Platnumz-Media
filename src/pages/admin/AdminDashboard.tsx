@@ -54,18 +54,18 @@ export function AdminDashboard() {
   if (loading) return <div className="text-white/50 text-[11px] font-bold uppercase tracking-widest">Loading dashboard...</div>;
 
   const statCards = [
-    { label: 'Total Articles', value: stats.totalArticles, icon: FileText, color: 'text-[#e5e5e5]', bg: 'bg-[#111]' },
-    { label: 'Published', value: stats.publishedArticles, icon: TrendingUp, color: 'text-[#e5e5e5]', bg: 'bg-[#111]' },
-    { label: 'Total Views', value: stats.totalViews, icon: Eye, color: 'text-[#e5e5e5]', bg: 'bg-[#111]' },
+    { label: 'Total Articles', value: stats.totalArticles, icon: FileText, color: 'text-[var(--text-main)]', bg: 'bg-[var(--bg-input)]' },
+    { label: 'Published', value: stats.publishedArticles, icon: TrendingUp, color: 'text-[var(--text-main)]', bg: 'bg-[var(--bg-input)]' },
+    { label: 'Total Views', value: stats.totalViews, icon: Eye, color: 'text-[var(--text-main)]', bg: 'bg-[var(--bg-input)]' },
   ];
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
-        <h1 className="text-2xl font-black uppercase tracking-widest text-white">Dashboard Overview</h1>
+      <div className="flex justify-between items-center mb-8 border-b border-[var(--border-color)] pb-4">
+        <h1 className="text-[var(--text-dark)]xl font-black uppercase tracking-widest text-white">Dashboard Overview</h1>
         <Link 
           to="/admin/articles/new" 
-          className="flex items-center gap-2 bg-[#C0C0C0] text-black px-4 py-2 rounded-sm text-[11px] font-black uppercase tracking-widest hover:bg-white transition-colors"
+          className="flex items-center gap-2 bg-[var(--accent)] text-black px-4 py-2 rounded-sm text-[11px] font-black uppercase tracking-widest hover:bg-white transition-colors"
         >
           <FileText size={16} />
           New Article
@@ -76,7 +76,7 @@ export function AdminDashboard() {
         {statCards.map((stat, idx) => {
           const Icon = stat.icon;
           return (
-            <div key={idx} className="bg-[#0a0a0a] rounded-sm border border-white/10 p-6 flex items-center gap-4">
+            <div key={idx} className="bg-[var(--bg-card)] rounded-sm border border-[var(--border-color)] p-6 flex items-center gap-4">
               <div className={`p-4 rounded-sm ${stat.bg}`}>
                 <Icon className={stat.color} size={24} />
               </div>
@@ -89,17 +89,17 @@ export function AdminDashboard() {
         })}
       </div>
 
-      <div className="bg-[#0a0a0a] rounded-sm border border-white/10 overflow-hidden">
-        <div className="p-6 border-b border-white/10 flex justify-between items-center">
+      <div className="bg-[var(--bg-card)] rounded-sm border border-[var(--border-color)] overflow-hidden">
+        <div className="p-6 border-b border-[var(--border-color)] flex justify-between items-center">
           <h2 className="text-sm font-black uppercase tracking-widest text-white">Recent Articles</h2>
-          <Link to="/admin/articles" className="text-[10px] font-bold uppercase tracking-widest text-[#C0C0C0] hover:text-white transition-colors">View All</Link>
+          <Link to="/admin/articles" className="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)] hover:text-white transition-colors">View All</Link>
         </div>
         
         {recentArticles.length === 0 ? (
           <div className="p-8 text-center text-[11px] font-bold uppercase tracking-widest text-white/50">No articles yet.</div>
         ) : (
           <table className="min-w-full divide-y divide-white/10">
-            <thead className="bg-[#111]">
+            <thead className="bg-[var(--bg-input)]">
               <tr>
                 <th className="px-6 py-3 text-left text-[9px] font-black text-white/50 uppercase tracking-widest">Title</th>
                 <th className="px-6 py-3 text-left text-[9px] font-black text-white/50 uppercase tracking-widest">Status</th>
@@ -107,18 +107,18 @@ export function AdminDashboard() {
                 <th className="px-6 py-3 text-right text-[9px] font-black text-white/50 uppercase tracking-widest">Edit</th>
               </tr>
             </thead>
-            <tbody className="bg-[#0a0a0a] divide-y divide-white/10">
+            <tbody className="bg-[var(--bg-card)] divide-y divide-white/10">
               {recentArticles.map((article) => (
                 <tr key={article.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Link to={`/admin/articles/${article.id}`} className="block">
-                      <div className="text-[11px] font-bold text-white hover:text-[#C0C0C0] transition-colors">{article.title}</div>
+                      <div className="text-[11px] font-bold text-white hover:text-[var(--accent)] transition-colors">{article.title}</div>
                       <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">{article.categories.join(', ')}</div>
                     </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-[9px] leading-5 font-black uppercase tracking-widest rounded-sm 
-                      ${article.status === 'published' ? 'bg-[#C0C0C0] text-black' : 
+                      ${article.status === 'published' ? 'bg-[var(--accent)] text-black' : 
                         article.status === 'draft' ? 'bg-white/10 text-white/60' : 
                         'bg-white/20 text-white'}`}
                     >
@@ -129,7 +129,7 @@ export function AdminDashboard() {
                     {format(new Date(article.createdAt), 'MMM d, yyyy')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link to={`/admin/articles/${article.id}`} className="text-[#C0C0C0] hover:text-white inline-block">
+                    <Link to={`/admin/articles/${article.id}`} className="text-[var(--accent)] hover:text-white inline-block">
                       <Edit size={16} />
                     </Link>
                   </td>
