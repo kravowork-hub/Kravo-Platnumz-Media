@@ -15,6 +15,7 @@ import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminArticles } from './pages/admin/AdminArticles';
 import { AdminEditor } from './pages/admin/AdminEditor';
+import { AdminVideo } from './pages/admin/AdminVideo';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="articles" element={<AdminArticles />} />
             <Route path="articles/new" element={<AdminEditor />} />
             <Route path="articles/:id" element={<AdminEditor />} />
+            <Route path="video" element={<AdminVideo />} />
           </Route>
         </Routes>
       </Router>

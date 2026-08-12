@@ -1,18 +1,29 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy, limit, where } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Article } from '../types';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { ArrowRight, PlayCircle } from 'lucide-react';
+import { ArrowRight, PlayCircle, Radio } from 'lucide-react';
 
 export function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [featuredVideo, setFeaturedVideo] = useState<{ url: string, isLive: boolean } | null>(null);
 
   useEffect(() => {
-    const fetchArticles = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch featured video
+        const videoDoc = await getDoc(doc(db, 'settings', 'featured_video'));
+        if (videoDoc.exists()) {
+          const vData = videoDoc.data();
+          if (vData.url) {
+            setFeaturedVideo({ url: vData.url, isLive: vData.isLive });
+          }
+        }
+
+        // Fetch articles
         const q = query(
           collection(db, 'articles'), 
           where('status', '==', 'published'),
@@ -23,13 +34,32 @@ export function Home() {
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Article));
         setArticles(data);
       } catch (error) {
-        console.error("Error fetching articles:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchArticles();
+    fetchData();
   }, []);
+
+  const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    try {
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        let videoId = '';
+        if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1]?.split('?')[0];
+        else if (url.includes('v=')) videoId = new URL(url).searchParams.get('v') || '';
+        else if (url.includes('/live/')) videoId = url.split('/live/')[1]?.split('?')[0];
+        
+        if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
+      } else if (url.includes('facebook.com')) {
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=auto`;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return '';
+  };
 
   if (loading) {
     return <div className="min-h-[50vh] flex items-center justify-center">Loading news...</div>;
@@ -38,10 +68,38 @@ export function Home() {
   const heroArticle = articles.length > 0 ? articles[0] : null;
   const recentArticles = articles.length > 1 ? articles.slice(1, 5) : [];
   const trendingArticles = articles.length > 5 ? articles.slice(5) : [];
+  
+  const videoEmbedUrl = featuredVideo ? getEmbedUrl(featuredVideo.url) : '';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
+      {/* Featured Video Section */}
+      {videoEmbedUrl && (
+        <section className="mb-12">
+          <div className="flex items-center gap-2 mb-4">
+            {featuredVideo?.isLive ? (
+              <span className="bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-sm flex items-center gap-1">
+                <Radio size={12} className="animate-pulse" /> LIVE NOW
+              </span>
+            ) : (
+              <span className="bg-[var(--accent)] text-black text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-sm flex items-center gap-1">
+                <PlayCircle size={12} /> LATEST VIDEO
+              </span>
+            )}
+            <div className="h-[1px] flex-1 bg-[var(--border-color)]"></div>
+          </div>
+          <div className="aspect-video w-full bg-black rounded-sm overflow-hidden border border-[var(--border-color)]">
+            <iframe 
+              src={videoEmbedUrl} 
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              allowFullScreen>
+            </iframe>
+          </div>
+        </section>
+      )}
+
       {/* Hero Section */}
       {heroArticle && (
         <section className="mb-12">

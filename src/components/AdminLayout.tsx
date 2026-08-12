@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, Video } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../lib/AuthContext';
 
@@ -16,6 +16,7 @@ export function AdminLayout() {
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Articles', path: '/admin/articles', icon: FileText },
+    { name: 'Live Video', path: '/admin/video', icon: Video },
   ];
 
   return (
