@@ -32,7 +32,14 @@ export function Layout() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-6 overflow-x-auto no-scrollbar items-center">
-              {CATEGORIES.slice(0, 5).map(cat => (
+              <Link to="/scores" className="text-[11px] font-black uppercase tracking-widest text-[var(--accent)] hover:text-white transition-colors whitespace-nowrap flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                Live Scores
+              </Link>
+              <Link to="/videos" className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)] opacity-50 hover:opacity-100 transition-opacity whitespace-nowrap">
+                Videos
+              </Link>
+              {CATEGORIES.slice(0, 3).map(cat => (
                 <Link key={cat} to={`/category/${cat}`} className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)] opacity-50 hover:opacity-100 transition-opacity whitespace-nowrap">
                   {cat}
                 </Link>
@@ -75,6 +82,21 @@ export function Layout() {
               />
             </form>
             <nav className="flex flex-col space-y-3">
+              <Link 
+                to="/scores" 
+                className="text-red-500 hover:text-white text-lg font-bold flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                Live Scores
+              </Link>
+              <Link 
+                to="/videos" 
+                className="text-[var(--accent)] hover:text-white text-lg font-bold"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Latest Videos
+              </Link>
               {CATEGORIES.map(cat => (
                 <Link 
                   key={cat} 

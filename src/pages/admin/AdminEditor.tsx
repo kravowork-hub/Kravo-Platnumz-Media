@@ -19,7 +19,9 @@ export function AdminEditor() {
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled'>('draft');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [tags, setTags] = useState('');
+
   const [aiTopic, setAiTopic] = useState('');
+  const [aiMode, setAiMode] = useState<'research' | 'strict'>('research');
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiEditInstruction, setAiEditInstruction] = useState('');
   const [isEditingAi, setIsEditingAi] = useState(false);
@@ -71,7 +73,7 @@ export function AdminEditor() {
       const res = await fetch('/api/generate-article', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: aiTopic })
+        body: JSON.stringify({ topic: aiTopic, mode: aiMode })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to generate');
@@ -218,14 +220,30 @@ export function AdminEditor() {
               AI Journalist
             </h3>
             <p className="text-[10px] text-white/50 mb-4 leading-relaxed">
-              Have our AI research the latest news and automatically draft a comprehensive article for you.
+              Have our AI research the latest news, or strictly format the exact info you provide.
             </p>
-            <input 
-              type="text" 
+            
+            <div className="flex gap-2 mb-4">
+              <button 
+                onClick={() => setAiMode('research')}
+                className={`flex-1 text-[9px] font-black uppercase tracking-widest py-2 rounded-sm border transition-colors ${aiMode === 'research' ? 'bg-purple-600 border-purple-600 text-white' : 'bg-transparent border-[var(--border-color)] text-white/50 hover:text-white'}`}
+              >
+                Research News
+              </button>
+              <button 
+                onClick={() => setAiMode('strict')}
+                className={`flex-1 text-[9px] font-black uppercase tracking-widest py-2 rounded-sm border transition-colors ${aiMode === 'strict' ? 'bg-purple-600 border-purple-600 text-white' : 'bg-transparent border-[var(--border-color)] text-white/50 hover:text-white'}`}
+              >
+                Strict Format
+              </button>
+            </div>
+
+            <textarea 
               value={aiTopic}
               onChange={(e) => setAiTopic(e.target.value)}
-              className="w-full mb-4 px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-purple-500/50"
-              placeholder="e.g. Latest 8-Ball World Championship Results"
+              rows={4}
+              className="w-full mb-4 px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-input)] text-white rounded-sm focus:outline-none focus:border-purple-500/50 resize-none text-sm"
+              placeholder={aiMode === 'research' ? "e.g. Latest 8-Ball World Championship Results" : "Paste your exact raw text or bullet points here to be formatted into an article..."}
             />
             <button
               onClick={handleAIGenerate}

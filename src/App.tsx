@@ -11,11 +11,15 @@ import { Home } from './pages/Home';
 import { ArticlePage } from './pages/ArticlePage';
 import { CategoryPage } from './pages/CategoryPage';
 import { SearchPage } from './pages/SearchPage';
+import { LiveScores } from './pages/LiveScores';
+import { Videos } from './pages/Videos';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminArticles } from './pages/admin/AdminArticles';
 import { AdminEditor } from './pages/admin/AdminEditor';
 import { AdminVideo } from './pages/admin/AdminVideo';
+import { AdminSocial } from './pages/admin/AdminSocial';
+import { AdminScores } from './pages/admin/AdminScores';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -39,6 +43,8 @@ export default function App() {
             <Route path="article/:slug" element={<ArticlePage />} />
             <Route path="category/:category" element={<CategoryPage />} />
             <Route path="search" element={<SearchPage />} />
+            <Route path="scores" element={<LiveScores />} />
+            <Route path="videos" element={<Videos />} />
           </Route>
 
           {/* Admin Routes */}
@@ -53,6 +59,8 @@ export default function App() {
             <Route path="articles/new" element={<AdminEditor />} />
             <Route path="articles/:id" element={<AdminEditor />} />
             <Route path="video" element={<AdminVideo />} />
+            <Route path="social" element={<AdminSocial />} />
+            <Route path="scores" element={<AdminScores />} />
           </Route>
         </Routes>
       </Router>

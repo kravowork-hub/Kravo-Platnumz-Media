@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, deleteDoc, doc, addDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { Article } from '../../types';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Trash2, Plus, RefreshCw } from 'lucide-react';
+import { useAuth } from '../../lib/AuthContext';
 
 export function AdminArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFetchingNews, setIsFetchingNews] = useState(false);
+  const { user } = useAuth();
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -35,17 +38,68 @@ export function AdminArticles() {
     }
   };
 
+  const handleAutoFetchNews = async () => {
+    setIsFetchingNews(true);
+    try {
+      const response = await fetch('/api/auto-fetch-news', {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch news");
+      }
+      const data = await response.json();
+      if (data.articles && data.articles.length > 0) {
+        for (const item of data.articles) {
+          const baseSlug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+          const newArticle: Omit<Article, 'id'> = {
+            title: item.title,
+            slug: `${baseSlug}-${Date.now().toString().slice(-4)}`,
+            content: item.content,
+            excerpt: item.excerpt,
+            coverImage: '',
+            categories: item.categories || ['Tournament Updates'],
+            status: 'published',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            authorId: user?.uid || 'admin',
+            authorName: user?.email || 'Admin',
+          };
+          await addDoc(collection(db, 'articles'), newArticle);
+        }
+        await fetchArticles();
+        alert(`Successfully fetched and published ${data.articles.length} news articles.`);
+      } else {
+        alert("No news found.");
+      }
+    } catch (error) {
+      console.error("Error auto-fetching news:", error);
+      alert("Failed to auto-fetch news");
+    } finally {
+      setIsFetchingNews(false);
+    }
+  };
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-8 border-b border-[var(--border-color)] pb-4">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8 border-b border-[var(--border-color)] pb-4">
         <h1 className="text-[var(--text-dark)]xl font-black uppercase tracking-widest text-white">Articles</h1>
-        <Link 
-          to="/admin/articles/new" 
-          className="flex items-center gap-2 bg-[var(--accent)] text-black px-4 py-2 rounded-sm text-[11px] font-black uppercase tracking-widest hover:bg-white transition-colors"
-        >
-          <Plus size={16} />
-          New Article
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleAutoFetchNews}
+            disabled={isFetchingNews}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-sm text-[11px] font-black uppercase tracking-widest hover:bg-blue-500 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={isFetchingNews ? "animate-spin" : ""} />
+            {isFetchingNews ? "Fetching..." : "Auto-Fetch News"}
+          </button>
+          <Link 
+            to="/admin/articles/new" 
+            className="flex items-center gap-2 bg-[var(--accent)] text-black px-4 py-2 rounded-sm text-[11px] font-black uppercase tracking-widest hover:bg-white transition-colors"
+          >
+            <Plus size={16} />
+            New Article
+          </Link>
+        </div>
       </div>
 
       <div className="bg-[var(--bg-card)] rounded-sm border border-[var(--border-color)] overflow-hidden">
