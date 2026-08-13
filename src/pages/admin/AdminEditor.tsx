@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { collection, doc, getDoc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
-import { CATEGORIES } from '../../types';
+import { CATEGORIES as DEFAULT_CATEGORIES } from '../../types';
 import { ArrowLeft, Save, Sparkles, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -11,6 +11,22 @@ export function AdminEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<string[]>(DEFAULT_CATEGORIES);
+  
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const docRef = doc(db, 'settings', 'categories');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().list) {
+          setAvailableCategories(docSnap.data().list);
+        }
+      } catch (error) {
+        console.error('Failed to load categories', error);
+      }
+    };
+    fetchCategories();
+  }, []);
   
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -327,7 +343,7 @@ export function AdminEditor() {
           <div className="bg-[var(--bg-card)] p-6 rounded-sm border border-[var(--border-color)]">
             <h3 className="font-black uppercase tracking-widest text-white mb-4">Categories</h3>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {CATEGORIES.map(category => (
+              {availableCategories.map(category => (
                 <label key={category} className="flex items-center gap-2 cursor-pointer group">
                   <input 
                     type="checkbox" 

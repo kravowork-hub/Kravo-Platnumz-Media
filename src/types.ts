@@ -19,26 +19,50 @@ export interface Article {
 export interface TournamentMatch {
   id: string;
   player1: string;
+  player1Flag?: string;
   player2: string;
+  player2Flag?: string;
   score1: string;
   score2: string;
   status: 'live' | 'completed' | 'upcoming';
-  matchInfo: string; // e.g. "Finals", "8:00 PM", "Frame 4"
+  matchInfo: string; // e.g. "Finals", "8:00 PM", "Table 9"
+  category?: string; // e.g. "Stage 1", "Women's Division"
 }
 
-export interface LiveScoreData {
-  tournamentName: string;
+export interface TournamentData {
+  id: string;
+  name: string;
+  status: 'active' | 'ended';
   matches: TournamentMatch[];
   updatedAt: string;
 }
 
+export interface LiveScoreData {
+  tournaments: TournamentData[];
+  updatedAt: string;
+}
+
 export const CATEGORIES = [
-  'Pool',
-  'Snooker',
-  'Heyball',
-  'Blackball',
-  'Tournament Updates',
+  'Breaking News',
+  'Live Updates',
+  'Upcoming Events',
+  'Match Recaps',
   'Player Profiles',
+  'Features & Editorials',
+  'Gear & Tech',
+  'Tips & Techniques',
+  'Classic Matches',
+  'From the Archives',
+  'Bulawayo Pool',
+  'Harare Pool',
+  'Rest of Zimbabwe Pool',
+  'African Pool',
+  'Zimbabwean Heyball',
+  'African Heyball',
+  'World Heyball',
+  'Snooker',
+  'Blackball',
+  'Billiards',
   'Match Statistics',
   'Live Streams'
 ];

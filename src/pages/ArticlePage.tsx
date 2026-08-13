@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { Article } from '../types';
 import { format } from 'date-fns';
 import { Facebook, Twitter, Link as LinkIcon, Share2 } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export function ArticlePage() {
   const { slug } = useParams();
@@ -44,6 +45,15 @@ export function ArticlePage() {
 
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <Helmet>
+        <title>{article.title} - PLATNUMZ CUESPORT</title>
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.excerpt} />
+        {article.coverImage && <meta property="og:image" content={article.coverImage} />}
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={currentUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       <header className="mb-10 text-center max-w-3xl mx-auto">
         <div className="flex justify-center gap-2 mb-6">
           {article.categories.map(cat => (

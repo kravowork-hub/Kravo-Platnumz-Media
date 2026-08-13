@@ -132,7 +132,7 @@ app.post("/api/parse-scores", async (req, res) => {
     
     const prompt = `You are an expert sports data parser. Given the following raw, unstructured text about a billiards/snooker/pool tournament, extract the matches and format them into a clean JSON array.
     
-    Current Tournament Name (if known): ${currentTournament || "Not provided, please infer if possible, or return empty string"}
+    Current Tournament Data (if known): ${currentTournament || "Not provided, please infer if possible, or return empty string"}
     
     Raw Text:
     """
@@ -141,16 +141,25 @@ app.post("/api/parse-scores", async (req, res) => {
     
     Please return ONLY a JSON object with this exact structure:
     {
-      "tournamentName": "Name of the tournament",
-      "matches": [
+      "tournaments": [
         {
           "id": "generate-a-unique-random-string-id",
-          "player1": "Name of Player 1",
-          "player2": "Name of Player 2",
-          "score1": "Player 1's score (e.g. '4', '0', or empty string if upcoming)",
-          "score2": "Player 2's score (e.g. '2', '0', or empty string if upcoming)",
-          "status": "must be exactly one of: 'live', 'completed', or 'upcoming'",
-          "matchInfo": "Any extra context (e.g. 'Final', 'Table 1', '8:00 PM', 'Frame 7')"
+          "name": "Name of the tournament",
+          "status": "must be exactly one of: 'active' or 'ended'",
+          "matches": [
+            {
+              "id": "generate-a-unique-random-string-id",
+              "player1": "Name of Player 1",
+              "player1Flag": "ISO 3166-1 alpha-2 country code (e.g. 'ZW', 'ZA', 'GB', 'US') if mentioned or deducible, else empty string",
+              "player2": "Name of Player 2",
+              "player2Flag": "ISO 3166-1 alpha-2 country code or empty string",
+              "score1": "Player 1's score (e.g. '4', '0', or empty string if upcoming)",
+              "score2": "Player 2's score (e.g. '2', '0', or empty string if upcoming)",
+              "status": "must be exactly one of: 'live', 'completed', or 'upcoming'",
+              "category": "Discipline/Category (e.g. 'Harare Pool', 'Zimbabwean Heyball') or empty string",
+              "matchInfo": "Any extra context (e.g. 'Final', 'Table 1', '8:00 PM', 'Frame 7')"
+            }
+          ]
         }
       ]
     }

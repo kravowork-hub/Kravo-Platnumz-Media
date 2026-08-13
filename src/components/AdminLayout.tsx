@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, LogOut, Video, Share2, Trophy, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, Video, Share2, Trophy, Menu, X, Tags } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../lib/AuthContext';
 
@@ -18,6 +18,7 @@ export function AdminLayout() {
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Articles', path: '/admin/articles', icon: FileText },
+    { name: 'Categories', path: '/admin/categories', icon: Tags },
     { name: 'Live Scores', path: '/admin/scores', icon: Trophy },
     { name: 'Live Video', path: '/admin/video', icon: Video },
     { name: 'Social Feeds', path: '/admin/social', icon: Share2 },
@@ -31,11 +32,9 @@ export function AdminLayout() {
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border-color)]">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[var(--accent)] text-black rounded-sm flex items-center justify-center font-black text-xs">
-              KP
-            </div>
-            <span className="font-bold text-sm tracking-tight uppercase text-white">Media CMS</span>
+          <Link to="/" className="flex items-center gap-3">
+            <img src="https://i.imgur.com/slFYB1w.png" alt="Platnumz Cuesport Logo" className="h-8 w-auto object-contain" />
+            <span className="font-bold text-sm tracking-tight text-white whitespace-nowrap">Platnumz Cuesport</span>
           </Link>
           <button 
             className="md:hidden text-white/50 hover:text-white"
@@ -95,7 +94,7 @@ export function AdminLayout() {
             >
               <Menu size={24} />
             </button>
-            <span className="font-bold text-white uppercase tracking-widest text-[11px]">KP CMS</span>
+            <span className="font-bold text-white uppercase tracking-widest text-[11px]">PLATNUMZ CUESPORT CMS</span>
           </div>
           <div className="hidden md:block"></div>
           <button onClick={handleLogout} className="p-2 text-white/50 hover:bg-white/10 rounded-sm">

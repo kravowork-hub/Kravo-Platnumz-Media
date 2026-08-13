@@ -4,6 +4,7 @@
  */
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import { Layout } from './components/Layout';
 import { AdminLayout } from './components/AdminLayout';
@@ -20,6 +21,7 @@ import { AdminEditor } from './pages/admin/AdminEditor';
 import { AdminVideo } from './pages/admin/AdminVideo';
 import { AdminSocial } from './pages/admin/AdminSocial';
 import { AdminScores } from './pages/admin/AdminScores';
+import { AdminCategories } from './pages/admin/AdminCategories';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -33,9 +35,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <ThemeSwitcher />
+    <HelmetProvider>
+      <AuthProvider>
+        <Router>
+          <ThemeSwitcher />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Layout />}>
@@ -58,6 +61,7 @@ export default function App() {
             <Route path="articles" element={<AdminArticles />} />
             <Route path="articles/new" element={<AdminEditor />} />
             <Route path="articles/:id" element={<AdminEditor />} />
+            <Route path="categories" element={<AdminCategories />} />
             <Route path="video" element={<AdminVideo />} />
             <Route path="social" element={<AdminSocial />} />
             <Route path="scores" element={<AdminScores />} />
@@ -65,5 +69,6 @@ export default function App() {
         </Routes>
       </Router>
     </AuthProvider>
+    </HelmetProvider>
   );
 }

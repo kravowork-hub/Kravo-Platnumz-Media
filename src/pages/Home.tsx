@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy, limit, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Article, LiveScoreData } from '../types';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { PlayCircle, Radio, Bell, Circle } from 'lucide-react';
@@ -60,18 +61,12 @@ export function Home() {
   }
 
   const heroArticle = articles.length > 0 ? articles[0] : null;
-  const recentArticles = articles.length > 1 ? articles.slice(1, 4) : [];
-  const majorEvents = articles.length > 4 ? articles.slice(4) : [];
+  const recentArticles = articles.length > 1 ? articles.slice(1) : [];
 
   const ArticleList = ({ items, title }: { items: Article[], title: string }) => (
     <div className="mb-10">
       <div className="bg-[#2a2a2a] py-3 px-4 mb-4 flex justify-between items-center border-b border-black">
         <h2 className="text-xl font-bold text-white">{title}</h2>
-        {title === 'Major Ranking Events' && (
-          <button className="border border-white/30 text-white/70 text-xs px-3 py-1 rounded-full hover:text-white hover:border-white transition-colors">
-            See all
-          </button>
-        )}
       </div>
       <div className="space-y-4 px-2 md:px-4">
         {items.map(article => (
@@ -106,6 +101,13 @@ export function Home() {
 
   return (
     <div className="max-w-4xl mx-auto pb-12 bg-black min-h-screen">
+      <Helmet>
+        <title>PLATNUMZ CUESPORT by Kravo | Global Cue Sports News</title>
+        <meta property="og:title" content="PLATNUMZ CUESPORT by Kravo" />
+        <meta property="og:description" content="Your premier source for global cue sports news, tournament coverage, and player insights." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       {/* Featured Video Notification Header */}
       {featuredVideo && (
         <div className="bg-[#0f6f4d] py-3 px-4 text-center">
@@ -141,23 +143,23 @@ export function Home() {
       )}
 
       {/* Live Scores Widget */}
-      {liveScores && liveScores.matches && liveScores.matches.length > 0 && (
+      {liveScores && liveScores.tournaments && liveScores.tournaments.length > 0 && (
         <section className="px-4 mb-10 mt-4">
           <div className="bg-[#1a1a1a] border border-[#333] rounded-sm p-4">
             <div className="flex justify-between items-center mb-4 border-b border-[#333] pb-3">
               <h2 className="text-lg font-black uppercase tracking-widest text-white flex items-center gap-2">
                 <Circle size={14} className="animate-pulse fill-red-500 text-red-500" /> 
-                {liveScores.tournamentName || "Live Scores"}
+                Live Scores
               </h2>
               <Link to="/scores" className="text-xs font-bold uppercase tracking-widest text-[#eab308] hover:text-white transition-colors">
                 View All
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {liveScores.matches.slice(0, 3).map(match => (
+              {liveScores.tournaments.flatMap(t => t.matches.map(m => ({...m, tournamentName: t.name}))).slice(0, 3).map(match => (
                 <Link key={match.id} to="/scores" className="bg-black border border-white/10 rounded-sm p-3 hover:border-white/30 transition-colors block">
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">{match.matchInfo}</span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">{match.tournamentName} - {match.matchInfo}</span>
                     {match.status === 'live' ? (
                       <span className="text-red-500 text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
                         <Circle size={6} className="animate-pulse fill-red-500" /> Live
@@ -186,11 +188,6 @@ export function Home() {
       {/* Recent Articles */}
       {recentArticles.length > 0 && (
         <ArticleList items={recentArticles} title="Latest News" />
-      )}
-
-      {/* Major Ranking Events */}
-      {majorEvents.length > 0 && (
-        <ArticleList items={majorEvents} title="Major Ranking Events" />
       )}
     </div>
   );

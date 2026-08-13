@@ -4,13 +4,14 @@ import { db } from '../../lib/firebase';
 import { Article } from '../../types';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Edit, Trash2, Plus, RefreshCw } from 'lucide-react';
+import { Edit, Trash2, Plus, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
 
 export function AdminArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFetchingNews, setIsFetchingNews] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
   const { user } = useAuth();
 
   const fetchArticles = async () => {
@@ -32,14 +33,18 @@ export function AdminArticles() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this article?")) {
+    try {
       await deleteDoc(doc(db, 'articles', id));
       fetchArticles();
+      setMessage({ type: 'success', text: 'Article deleted successfully.' });
+    } catch (e) {
+      setMessage({ type: 'error', text: 'Failed to delete article.' });
     }
   };
 
   const handleAutoFetchNews = async () => {
     setIsFetchingNews(true);
+    setMessage({ type: '', text: '' });
     try {
       const response = await fetch('/api/auto-fetch-news', {
         method: 'POST',
@@ -62,18 +67,18 @@ export function AdminArticles() {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             authorId: user?.uid || 'admin',
-            authorName: user?.email || 'Admin',
+            authorName: user?.email || 'Admin', views: 0, publishDate: new Date().toISOString(), tags: [],
           };
           await addDoc(collection(db, 'articles'), newArticle);
         }
         await fetchArticles();
-        alert(`Successfully fetched and published ${data.articles.length} news articles.`);
+        setMessage({ type: 'success', text: `Successfully fetched and published ${data.articles.length} news articles.` });
       } else {
-        alert("No news found.");
+        setMessage({ type: 'error', text: "No news found." });
       }
     } catch (error) {
       console.error("Error auto-fetching news:", error);
-      alert("Failed to auto-fetch news");
+      setMessage({ type: 'error', text: "Failed to auto-fetch news." });
     } finally {
       setIsFetchingNews(false);
     }
@@ -101,6 +106,17 @@ export function AdminArticles() {
           </Link>
         </div>
       </div>
+      
+      {message.text && (
+        <div className={`mb-6 p-4 border text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-sm ${
+          message.type === 'success' 
+            ? 'bg-[var(--accent)]/10 border-[var(--accent)] text-[var(--accent)]' 
+            : 'bg-red-500/10 border-red-500/30 text-red-400'
+        }`}>
+          {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+          {message.text}
+        </div>
+      )}
 
       <div className="bg-[var(--bg-card)] rounded-sm border border-[var(--border-color)] overflow-hidden">
         {loading ? (
@@ -121,7 +137,7 @@ export function AdminArticles() {
               {articles.map((article) => (
                 <tr key={article.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-[11px] font-bold text-white">{article.title}</div>
+                    <Link to={`/admin/articles/${article.id}`} className="text-[11px] font-bold text-white hover:text-[var(--accent)] hover:underline">{article.title}</Link>
                     <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">{article.categories.join(', ')}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
