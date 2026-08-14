@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { Bold, Italic, Underline, Link, List, ListOrdered, Image as ImageIcon } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -8,6 +8,12 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (editorRef.current && value !== editorRef.current.innerHTML) {
+      editorRef.current.innerHTML = value || '';
+    }
+  }, [value]);
 
   const execCommand = (command: string, arg?: string) => {
     document.execCommand(command, false, arg);
@@ -91,7 +97,6 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        dangerouslySetInnerHTML={{ __html: value }}
         className="flex-1 p-4 text-white focus:outline-none overflow-y-auto prose prose-invert max-w-none"
         style={{ minHeight: '300px' }}
       />
