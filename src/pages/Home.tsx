@@ -64,32 +64,35 @@ export function Home() {
   const recentArticles = articles.length > 1 ? articles.slice(1) : [];
 
   const ArticleList = ({ items, title }: { items: Article[], title: string }) => (
-    <div className="mb-10">
-      <div className="bg-[#2a2a2a] py-3 px-4 mb-4 flex justify-between items-center border-b border-black">
-        <h2 className="text-xl font-bold text-white">{title}</h2>
+    <div className="mb-10 px-4">
+      <div className="flex items-center gap-3 mb-6 border-b border-[#333] pb-3">
+        <h2 className="text-lg font-black uppercase tracking-widest text-white">{title}</h2>
       </div>
-      <div className="space-y-4 px-2 md:px-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
         {items.map(article => (
-          <Link key={article.id} to={`/article/${article.slug}`} className="flex flex-col bg-[#f3f4f6] rounded-sm overflow-hidden hover:opacity-90 transition-opacity">
-            <div className="w-full shrink-0 relative flex justify-center bg-black">
+          <Link key={article.id} to={`/article/${article.slug}`} className="group flex flex-col bg-[#1a1a1a] border border-[#333] rounded-sm overflow-hidden hover:border-[#eab308] transition-colors">
+            <div className="w-full aspect-[4/3] relative flex justify-center bg-black overflow-hidden">
               {article.coverImage ? (
-                <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" className="max-w-full h-auto object-contain" />
+                <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               ) : (
                 <div className="w-full h-full bg-[#111]"></div>
               )}
               {article.categories.includes('Live Streams') && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                  <PlayCircle size={32} className="text-white opacity-90" />
+                  <PlayCircle size={24} className="text-white opacity-90" />
                 </div>
               )}
             </div>
-            <div className="flex-1 p-3 md:p-4 flex flex-col justify-center relative">
-              <h3 className="text-black font-bold text-sm md:text-lg leading-tight line-clamp-3">
+            <div className="flex-1 p-3 flex flex-col justify-start relative">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#eab308] mb-2 truncate">
+                {article.categories[0] || 'News'}
+              </span>
+              <h3 className="text-white/90 font-bold text-xs leading-snug line-clamp-3 group-hover:text-white transition-colors">
                 {article.title}
               </h3>
               {article.categories.includes('Live Streams') && (
                 <div className="absolute bottom-2 right-2 text-red-500">
-                  <Bell size={20} className="fill-red-500/20" />
+                  <Bell size={14} className="fill-red-500/20" />
                 </div>
               )}
             </div>
