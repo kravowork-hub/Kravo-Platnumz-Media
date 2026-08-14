@@ -1,5 +1,5 @@
 import express from "express";
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -11,12 +11,12 @@ app.post("/api/generate-article", async (req, res) => {
       return res.status(400).json({ error: "Topic/Instructions are required" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "GEMINI_API_KEY is not configured" });
+      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const groq = new Groq({ apiKey });
     
     let prompt = "";
     
@@ -28,9 +28,9 @@ app.post("/api/generate-article", async (req, res) => {
       
       Please return ONLY a JSON object with the following fields:
       {
-        "title": "A precise headline based ONLY on the provided information",
-        "excerpt": "A short summary of the exact provided information",
-        "content": "The full content formatted as HTML (using <h2>, <p>, <strong>, etc.), strictly adhering to the provided information and instructions without adding outside fluff."
+        "title": "A catchy, SEO-friendly headline",
+        "excerpt": "A 2-3 sentence summary of the article",
+        "content": "The full article content formatted as HTML (using <h2>, <p>, <strong>, etc.) based ONLY on the provided information and instructions without adding outside fluff."
       }
       
       Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
@@ -47,19 +47,18 @@ app.post("/api/generate-article", async (req, res) => {
       Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     });
 
-    if (!response.text) {
+    const text = response.choices[0]?.message?.content;
+    if (!text) {
       throw new Error("Failed to generate content");
     }
 
-    const result = JSON.parse(response.text);
+    const result = JSON.parse(text);
     res.json(result);
   } catch (error: any) {
     console.error("Error generating article:", error);
@@ -74,12 +73,12 @@ app.post("/api/edit-article", async (req, res) => {
       return res.status(400).json({ error: "Instruction is required" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "GEMINI_API_KEY is not configured" });
+      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const groq = new Groq({ apiKey });
     
     const prompt = `You are an expert news writer and editor. Please edit the following article based on this instruction: "${instruction}".
     
@@ -96,19 +95,18 @@ app.post("/api/edit-article", async (req, res) => {
     
     Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     });
 
-    if (!response.text) {
+    const text = response.choices[0]?.message?.content;
+    if (!text) {
       throw new Error("Failed to edit content");
     }
 
-    const result = JSON.parse(response.text);
+    const result = JSON.parse(text);
     res.json(result);
   } catch (error: any) {
     console.error("Error editing article:", error);
@@ -123,12 +121,12 @@ app.post("/api/parse-scores", async (req, res) => {
       return res.status(400).json({ error: "Raw text is required" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "GEMINI_API_KEY is not configured" });
+      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const groq = new Groq({ apiKey });
     
     const prompt = `You are an expert sports data parser. Given the following raw, unstructured text about a billiards/snooker/pool tournament, extract the matches and format them into a clean JSON array.
     
@@ -166,19 +164,17 @@ app.post("/api/parse-scores", async (req, res) => {
     
     Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     });
 
-    if (!response.text) {
+    let text = response.choices[0]?.message?.content;
+    if (!text) {
       throw new Error("Failed to parse scores");
     }
 
-    let text = response.text;
     if (text.startsWith('```json')) {
       text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
     } else if (text.startsWith('```')) {
@@ -195,54 +191,63 @@ app.post("/api/parse-scores", async (req, res) => {
 
 app.post("/api/auto-fetch-news", async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "GEMINI_API_KEY is not configured" });
+      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
     }
-    const ai = new GoogleGenAI({ apiKey });
+
+    const groq = new Groq({ apiKey });
     
-    const prompt = `You are an automated cue sports news aggregator. 
-    Please use Google Search to find the latest, most recent news regarding cue sports (snooker, pool, billiards) worldwide. 
-    Select the top 3 most important news items.
+    const prompt = `You are an automated cue sports news generator. 
+    Since you cannot browse the internet, please simulate and write the top 3 most important recent fictional or realistic news items regarding cue sports (snooker, pool, billiards) worldwide.
+    Make them sound like real, current events.
     
     For each news item, generate:
     1. A catchy, SEO-friendly headline (title).
     2. A 2-3 sentence summary (excerpt).
-    3. The full article content formatted as HTML (using <h2>, <p>, <strong>, etc.) based on the search results. Write at least 3-4 paragraphs.
+    3. The full article content formatted as HTML (using <h2>, <p>, <strong>, etc.). Write at least 3-4 paragraphs.
     
-    Return ONLY a JSON array of objects with the following fields:
-    [
-      {
-        "title": "Headline",
-        "excerpt": "Summary",
-        "content": "HTML content",
-        "categories": ["Tournament Updates"]
-      }
-    ]
+    Return ONLY a JSON object with an "articles" array of objects with the following fields:
+    {
+      "articles": [
+        {
+          "title": "Headline",
+          "excerpt": "Summary",
+          "content": "HTML content",
+          "categories": ["Tournament Updates"]
+        }
+      ]
+    }
     
     Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: prompt,
-      config: {
-        tools: [{ googleSearch: {} }]
-      }
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     });
 
-    if (!response.text) {
+    let text = response.choices[0]?.message?.content;
+    if (!text) {
       throw new Error("Failed to fetch news");
     }
 
-    let text = response.text;
-    if (text.startsWith('\`\`\`json')) {
-      text = text.replace(/^\`\`\`json\n/, '').replace(/\n\`\`\`$/, '');
-    } else if (text.startsWith('\`\`\`')) {
-      text = text.replace(/^\`\`\`\n/, '').replace(/\n\`\`\`$/, '');
+    if (text.startsWith('```json')) {
+      text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
+    } else if (text.startsWith('```')) {
+      text = text.replace(/^```\n/, '').replace(/\n```$/, '');
     }
 
     const result = JSON.parse(text);
-    res.json({ articles: result });
+    
+    // Support if it returns an array instead of the object
+    if (Array.isArray(result)) {
+      res.json({ articles: result });
+    } else if (result.articles) {
+      res.json(result);
+    } else {
+      res.json({ articles: [result] });
+    }
   } catch (error: any) {
     console.error("Error auto-fetching news:", error);
     res.status(500).json({ error: error.message || "Failed to auto-fetch news" });

@@ -26,7 +26,7 @@ const PORT = 3000;
 // Mount API routes
 app.use(apiApp);
 
-const DEFAULT_TITLE = "PLATNUMZ CUESPORT by Kravo";
+const DEFAULT_TITLE = "Platnumz Cuesport Official Website";
 const DEFAULT_DESC = "Your premier source for global cue sports news, tournament coverage, and player insights.";
 const DEFAULT_IMAGE = "https://i.imgur.com/slFYB1w.png";
 
@@ -43,19 +43,19 @@ async function getPageMetadata(urlPath: string) {
         const articleSnap = await getDoc(articleRef);
         if (articleSnap.exists()) {
           const data = articleSnap.data();
-          title = data.title || title;
+          title = data.title ? `${data.title} - Platnumz Cuesport Official Website` : title;
           description = (data.content || "").substring(0, 150).replace(/<[^>]+>/g, '') + "...";
           image = data.imageUrl || image;
         }
       }
     } else if (urlPath.startsWith('/scores')) {
-      title = "Live Scores - PLATNUMZ CUESPORT";
+      title = "Live Scores - Platnumz Cuesport Official Website";
       description = "Follow live scores and tournament updates.";
     } else if (urlPath.startsWith('/videos')) {
-      title = "Live Videos - PLATNUMZ CUESPORT";
+      title = "Live Videos - Platnumz Cuesport Official Website";
       description = "Watch live streams and featured cue sport videos.";
     } else if (urlPath.startsWith('/search')) {
-      title = "Search - PLATNUMZ CUESPORT";
+      title = "Search - Platnumz Cuesport Official Website";
     }
   } catch (e) {
     console.error("Error fetching metadata:", e);
