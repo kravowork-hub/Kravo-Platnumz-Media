@@ -40,7 +40,7 @@ async function generateWithAI(prompt: string): Promise<string> {
     try {
       const ai = new GoogleGenAI({ apiKey: geminiApiKey });
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-pro",
+        model: "gemini-2.5-pro",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
