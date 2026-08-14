@@ -1,9 +1,9 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Trophy, Circle } from 'lucide-react';
-import { LiveScoreData, TournamentData, TournamentMatch } from '../types';
+import { Trophy, Circle, Calendar, ChevronRight } from 'lucide-react';
+import { LiveScoreData, TournamentData } from '../types';
 
 export function LiveScores() {
   const [data, setData] = useState<LiveScoreData | null>(null);
@@ -14,6 +14,7 @@ export function LiveScores() {
       try {
         const docRef = doc(db, 'settings', 'live_scores');
         const docSnap = await getDoc(docRef);
+        
         if (docSnap.exists()) {
           const firestoreData = docSnap.data();
           if (firestoreData.tournaments) {
@@ -38,11 +39,12 @@ export function LiveScores() {
         setLoading(false);
       }
     }
+    
     fetchScores();
   }, []);
 
   if (loading) {
-    return <div className="min-h-[50vh] flex items-center justify-center text-[var(--text-main)] text-[11px] font-bold uppercase tracking-widest">Loading Scores...</div>;
+    return <div className="min-h-[50vh] flex items-center justify-center text-[var(--text-main)] text-[11px] font-bold uppercase tracking-widest">Loading Tournaments...</div>;
   }
 
   if (!data || !data.tournaments || data.tournaments.length === 0) {
@@ -55,141 +57,62 @@ export function LiveScores() {
     );
   }
 
-  const renderFlag = (code?: string) => {
-    if (!code) return null;
-    return (
-      <img 
-        src={`https://flagcdn.com/w20/${code.toLowerCase()}.png`} 
-        alt={code}
-        className="w-5 h-auto inline-block rounded-[1px] opacity-80"
-      />
-    );
-  };
-
-  const MatchCard: React.FC<{ match: TournamentMatch }> = ({ match }) => (
-    <div className="bg-[#0b1325] border border-white/5 rounded-lg p-0 overflow-hidden shadow-xl">
-      {/* Header */}
-      <div className="flex justify-between items-center px-4 py-2 bg-[#121c32] border-b border-white/5">
-        <div className="flex gap-2 items-center">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#eab308] bg-[#eab308]/10 px-2 py-1 rounded-sm">
-            {match.matchInfo || "Table TBD"}
-          </span>
-          {match.category && (
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
-              {match.category}
-            </span>
-          )}
-        </div>
-        
-        {match.status === 'live' && (
-          <span className="bg-red-500 text-white text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-sm flex items-center gap-1">
-            <Circle size={8} className="animate-pulse fill-white" /> LIVE
-          </span>
-        )}
-        {match.status === 'completed' && (
-          <span className="text-white/40 text-[9px] font-bold uppercase tracking-widest bg-white/5 px-2 py-1 rounded-sm">FINAL</span>
-        )}
-        {match.status === 'upcoming' && (
-          <span className="text-white/70 text-[9px] font-bold uppercase tracking-widest bg-white/10 px-2 py-1 rounded-sm">SCHEDULED</span>
-        )}
-      </div>
-      
-      {/* Players & Scores */}
-      <div className="p-4 flex flex-col gap-0 relative">
-        {/* Player 1 */}
-        <div className="flex justify-between items-center py-2 relative z-10">
-          <div className="flex items-center gap-3">
-             {renderFlag(match.player1Flag) || <div className="w-5 h-3.5 bg-white/10 rounded-[1px]"></div>}
-             <span className={`text-base font-medium ${match.status === 'completed' && match.score1 > match.score2 ? 'text-white font-bold' : 'text-white/80'}`}>
-               {match.player1 || "TBD"}
-             </span>
-          </div>
-          <span className={`text-lg font-bold ${match.status === 'completed' && match.score1 > match.score2 ? 'text-white' : 'text-white/60'}`}>
-            {match.score1 || "-"}
-          </span>
-        </div>
-
-        {/* Divider */}
-        <div className="h-[1px] w-full bg-white/5 my-1"></div>
-
-        {/* Player 2 */}
-        <div className="flex justify-between items-center py-2 relative z-10">
-          <div className="flex items-center gap-3">
-            {renderFlag(match.player2Flag) || <div className="w-5 h-3.5 bg-white/10 rounded-[1px]"></div>}
-            <span className={`text-base font-medium ${match.status === 'completed' && match.score2 > match.score1 ? 'text-white font-bold' : 'text-white/80'}`}>
-              {match.player2 || "TBD"}
-            </span>
-          </div>
-          <span className={`text-lg font-bold ${match.status === 'completed' && match.score2 > match.score1 ? 'text-white' : 'text-white/60'}`}>
-            {match.score2 || "-"}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-
-  const TournamentSection: React.FC<{ tournament: TournamentData }> = ({ tournament }) => {
-    const liveMatches = tournament.matches.filter(m => m.status === 'live');
-    const upcomingMatches = tournament.matches.filter(m => m.status === 'upcoming');
-    const completedMatches = tournament.matches.filter(m => m.status === 'completed');
-
-    if (tournament.matches.length === 0) return null;
-
-    return (
-      <div className="mb-16">
-        <div className="flex items-center gap-4 mb-8 border-b border-[var(--border-color)] pb-4">
-           <Trophy size={24} className="text-[var(--accent)]" />
-           <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase text-[var(--text-main)]">
-             {tournament.name}
-           </h2>
-           {tournament.status === 'ended' && (
-             <span className="ml-4 text-xs font-bold uppercase tracking-widest text-white/50 border border-white/20 px-2 py-1 rounded-sm">Ended</span>
-           )}
-        </div>
-
-        <div className="space-y-10">
-          {liveMatches.length > 0 && (
-            <section>
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-red-500 mb-4 flex items-center gap-2">
-                <Circle size={10} className="animate-pulse fill-red-500" /> Live Now
-              </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                {liveMatches.map(match => <MatchCard key={match.id} match={match} />)}
-              </div>
-            </section>
-          )}
-
-          {upcomingMatches.length > 0 && (
-            <section>
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--accent)] mb-4 flex items-center gap-2">
-                Upcoming Fixtures
-              </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                {upcomingMatches.map(match => <MatchCard key={match.id} match={match} />)}
-              </div>
-            </section>
-          )}
-
-          {completedMatches.length > 0 && (
-            <section>
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-white/50 mb-4">
-                Recent Results
-              </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 opacity-75">
-                {completedMatches.map(match => <MatchCard key={match.id} match={match} />)}
-              </div>
-            </section>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-      {data.tournaments.map(tournament => (
-        <TournamentSection key={tournament.id} tournament={tournament} />
-      ))}
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-[var(--border-color)]">
+        <div className="flex items-center gap-3">
+          <Trophy size={28} className="text-[var(--accent)]" />
+          <h1 className="text-3xl font-black italic tracking-tighter uppercase text-[var(--text-main)]">
+            Tournaments
+          </h1>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {data.tournaments.map((tournament) => {
+          const liveMatchesCount = tournament.matches.filter(m => m.status === 'live').length;
+          
+          return (
+            <Link 
+              key={tournament.id} 
+              to={`/scores/${tournament.id}`}
+              className="group bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--accent)] rounded-lg overflow-hidden transition-all duration-300 flex flex-col"
+            >
+              <div className="p-6 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-4">
+                  {tournament.status === 'active' ? (
+                    <span className="bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-sm flex items-center gap-1 border border-red-500/20">
+                      <Circle size={8} className="animate-pulse fill-red-500" /> LIVE EVENT
+                    </span>
+                  ) : (
+                    <span className="bg-white/5 text-white/50 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-sm border border-white/10">
+                      ENDED
+                    </span>
+                  )}
+                  
+                  {liveMatchesCount > 0 && (
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                      {liveMatchesCount} Match{liveMatchesCount !== 1 ? 'es' : ''} Live
+                    </span>
+                  )}
+                </div>
+                
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-4 line-clamp-2 flex-1 group-hover:text-[var(--accent)] transition-colors">
+                  {tournament.name}
+                </h2>
+                
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-[var(--border-color)]">
+                  <div className="flex items-center gap-2 text-white/50 text-[11px] font-bold uppercase tracking-widest">
+                    <Calendar size={14} />
+                    <span>{tournament.matches.length} Total Matches</span>
+                  </div>
+                  <ChevronRight size={18} className="text-white/30 group-hover:text-[var(--accent)] transition-colors" />
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

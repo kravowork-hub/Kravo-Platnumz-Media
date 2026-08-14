@@ -70,10 +70,10 @@ export function Home() {
       </div>
       <div className="space-y-4 px-2 md:px-4">
         {items.map(article => (
-          <Link key={article.id} to={`/article/${article.slug}`} className="flex bg-[#f3f4f6] rounded-sm overflow-hidden hover:opacity-90 transition-opacity">
-            <div className="w-[120px] md:w-[200px] shrink-0 relative">
+          <Link key={article.id} to={`/article/${article.slug}`} className="flex flex-col bg-[#f3f4f6] rounded-sm overflow-hidden hover:opacity-90 transition-opacity">
+            <div className="w-full shrink-0 relative flex justify-center bg-black">
               {article.coverImage ? (
-                <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" className="w-full h-full object-cover aspect-video md:aspect-[4/3]" />
+                <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" className="max-w-full h-auto object-contain" />
               ) : (
                 <div className="w-full h-full bg-[#111]"></div>
               )}
@@ -130,12 +130,12 @@ export function Home() {
             </Link>
           </div>
           {heroArticle.coverImage && (
-            <div className="w-full relative aspect-[16/9] md:aspect-[21/9]">
+            <div className="w-full relative flex justify-center bg-black">
               <img 
                 src={heroArticle.coverImage} 
                 alt={heroArticle.title}
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
+                className="max-w-full h-auto"
               />
             </div>
           )}
@@ -155,28 +155,28 @@ export function Home() {
                 View All
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {liveScores.tournaments.flatMap(t => t.matches.map(m => ({...m, tournamentName: t.name}))).slice(0, 3).map(match => (
-                <Link key={match.id} to="/scores" className="bg-black border border-white/10 rounded-sm p-3 hover:border-white/30 transition-colors block">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+              {liveScores.tournaments.flatMap(t => t.matches.map(m => ({...m, tournamentName: t.name, tournamentId: t.id}))).slice(0, 3).map(match => (
+                <Link key={match.id} to={`/scores/${match.tournamentId}`} className="bg-black border border-white/10 rounded-sm p-2 md:p-3 hover:border-white/30 transition-colors block">
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">{match.tournamentName} - {match.matchInfo}</span>
+                    <span className="text-[7px] md:text-[9px] font-bold uppercase tracking-widest text-white/50 truncate max-w-[80px] md:max-w-none">{match.tournamentName} - {match.matchInfo}</span>
                     {match.status === 'live' ? (
-                      <span className="text-red-500 text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                      <span className="text-red-500 text-[7px] md:text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
                         <Circle size={6} className="animate-pulse fill-red-500" /> Live
                       </span>
                     ) : match.status === 'upcoming' ? (
-                      <span className="text-[#eab308] text-[9px] font-bold uppercase tracking-widest">Upcoming</span>
+                      <span className="text-[#eab308] text-[7px] md:text-[9px] font-bold uppercase tracking-widest">Upcoming</span>
                     ) : (
-                      <span className="text-white/30 text-[9px] font-bold uppercase tracking-widest">Final</span>
+                      <span className="text-white/30 text-[7px] md:text-[9px] font-bold uppercase tracking-widest">Final</span>
                     )}
                   </div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className={`text-sm font-bold ${match.status === 'completed' && match.score1 > match.score2 ? 'text-white' : 'text-white/70'}`}>{match.player1}</span>
-                    <span className="text-lg font-black text-white">{match.score1}</span>
+                    <span className={`text-[10px] md:text-sm font-bold truncate max-w-[80px] md:max-w-[150px] ${match.status === 'completed' && match.score1 > match.score2 ? 'text-white' : 'text-white/70'}`}>{match.player1}</span>
+                    <span className="text-sm md:text-lg font-black text-white">{match.score1}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className={`text-sm font-bold ${match.status === 'completed' && match.score2 > match.score1 ? 'text-white' : 'text-white/70'}`}>{match.player2}</span>
-                    <span className="text-lg font-black text-white">{match.score2}</span>
+                    <span className={`text-[10px] md:text-sm font-bold truncate max-w-[80px] md:max-w-[150px] ${match.status === 'completed' && match.score2 > match.score1 ? 'text-white' : 'text-white/70'}`}>{match.player2}</span>
+                    <span className="text-sm md:text-lg font-black text-white">{match.score2}</span>
                   </div>
                 </Link>
               ))}

@@ -1,8 +1,60 @@
 import express from "express";
 import Groq from "groq-sdk";
+import { GoogleGenAI } from "@google/genai";
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
+
+async function generateWithAI(prompt: string): Promise<string> {
+  const groqApiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
+  const geminiApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+  
+  if (!groqApiKey && !geminiApiKey) {
+    throw new Error("Neither GROQ_API_KEY nor GEMINI_API_KEY is configured.");
+  }
+
+  let lastError = null;
+
+  // Try Groq First
+  if (groqApiKey) {
+    try {
+      const groq = new Groq({ apiKey: groqApiKey });
+      const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" }
+      });
+      const text = response.choices[0]?.message?.content;
+      if (text) return text;
+    } catch (error: any) {
+      console.error("Groq generation failed, falling back to Gemini:", error.message || error);
+      lastError = error;
+      if (!geminiApiKey) {
+        throw new Error(`Groq failed and GEMINI_API_KEY is not configured for fallback. Groq Error: ${error.message}`);
+      }
+    }
+  }
+
+  // Try Gemini
+  if (geminiApiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-1.5-pro",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+      if (response.text) return response.text;
+    } catch (error: any) {
+      console.error("Gemini fallback generation failed:", error.message || error);
+      throw new Error(`AI generation failed. Gemini Error: ${error.message}${lastError ? ` | Groq Error: ${lastError.message}` : ''}`);
+    }
+  }
+
+  throw new Error("Failed to generate content from any AI provider");
+}
 
 app.post("/api/generate-article", async (req, res) => {
   try {
@@ -11,13 +63,6 @@ app.post("/api/generate-article", async (req, res) => {
       return res.status(400).json({ error: "Topic/Instructions are required" });
     }
 
-    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
-    }
-
-    const groq = new Groq({ apiKey });
-    
     let prompt = "";
     
     if (mode === 'strict') {
@@ -33,7 +78,7 @@ app.post("/api/generate-article", async (req, res) => {
         "content": "The full article content formatted as HTML (using <h2>, <p>, <strong>, etc.) based ONLY on the provided information and instructions without adding outside fluff."
       }
       
-      Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
+      CRITICAL: You must extract and return EVERY single match mentioned in the text. Do not stop at just one match. Do not provide a partial list. Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
     } else {
       prompt = `You are an expert news writer and cue sports journalist. Please research (simulate if needed) and write a comprehensive, engaging article about the following topic or headline: "${topic}". Focus on professional pool, snooker, or billiards if the topic implies it.
       
@@ -44,19 +89,12 @@ app.post("/api/generate-article", async (req, res) => {
         "content": "The full article content formatted as HTML (using <h2>, <p>, <strong>, etc.). Write at least 4-5 paragraphs. Make it look good for a rich text editor."
       }
       
-      Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
+      CRITICAL: You must extract and return EVERY single match mentioned in the text. Do not stop at just one match. Do not provide a partial list. Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
     }
 
-    const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
-    });
-
-    const text = response.choices[0]?.message?.content;
-    if (!text) {
-      throw new Error("Failed to generate content");
-    }
+    let text = await generateWithAI(prompt);
+    if (text.startsWith('```json')) text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
+    else if (text.startsWith('```')) text = text.replace(/^```\n/, '').replace(/\n```$/, '');
 
     const result = JSON.parse(text);
     res.json(result);
@@ -73,13 +111,6 @@ app.post("/api/edit-article", async (req, res) => {
       return res.status(400).json({ error: "Instruction is required" });
     }
 
-    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
-    }
-
-    const groq = new Groq({ apiKey });
-    
     const prompt = `You are an expert news writer and editor. Please edit the following article based on this instruction: "${instruction}".
     
     Current Title: ${title || "(Empty)"}
@@ -93,18 +124,11 @@ app.post("/api/edit-article", async (req, res) => {
       "content": "The updated full article content formatted as HTML (using <h2>, <p>, <strong>, etc.)"
     }
     
-    Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
+    CRITICAL: You must extract and return EVERY single match mentioned in the text. Do not stop at just one match. Do not provide a partial list. Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
 
-    const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
-    });
-
-    const text = response.choices[0]?.message?.content;
-    if (!text) {
-      throw new Error("Failed to edit content");
-    }
+    let text = await generateWithAI(prompt);
+    if (text.startsWith('```json')) text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
+    else if (text.startsWith('```')) text = text.replace(/^```\n/, '').replace(/\n```$/, '');
 
     const result = JSON.parse(text);
     res.json(result);
@@ -121,14 +145,7 @@ app.post("/api/parse-scores", async (req, res) => {
       return res.status(400).json({ error: "Raw text is required" });
     }
 
-    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
-    }
-
-    const groq = new Groq({ apiKey });
-    
-    const prompt = `You are an expert sports data parser. Given the following raw, unstructured text about a billiards/snooker/pool tournament, extract the matches and format them into a clean JSON array.
+    const prompt = `You are an expert sports data parser. Given the following raw, unstructured text about a billiards/snooker/pool tournament, extract ALL matches (do not leave any out) and format them into a clean JSON array.
     
     Current Tournament Data (if known): ${currentTournament || "Not provided, please infer if possible, or return empty string"}
     
@@ -162,24 +179,11 @@ app.post("/api/parse-scores", async (req, res) => {
       ]
     }
     
-    Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
+    CRITICAL: You must extract and return EVERY single match mentioned in the text. Do not stop at just one match. Do not provide a partial list. Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
 
-    const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
-    });
-
-    let text = response.choices[0]?.message?.content;
-    if (!text) {
-      throw new Error("Failed to parse scores");
-    }
-
-    if (text.startsWith('```json')) {
-      text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
-    } else if (text.startsWith('```')) {
-      text = text.replace(/^```\n/, '').replace(/\n```$/, '');
-    }
+    let text = await generateWithAI(prompt);
+    if (text.startsWith('```json')) text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
+    else if (text.startsWith('```')) text = text.replace(/^```\n/, '').replace(/\n```$/, '');
 
     const result = JSON.parse(text);
     res.json(result);
@@ -191,13 +195,6 @@ app.post("/api/parse-scores", async (req, res) => {
 
 app.post("/api/auto-fetch-news", async (req, res) => {
   try {
-    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
-    }
-
-    const groq = new Groq({ apiKey });
-    
     const prompt = `You are an automated cue sports news generator. 
     Since you cannot browse the internet, please simulate and write the top 3 most important recent fictional or realistic news items regarding cue sports (snooker, pool, billiards) worldwide.
     Make them sound like real, current events.
@@ -219,28 +216,14 @@ app.post("/api/auto-fetch-news", async (req, res) => {
       ]
     }
     
-    Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
+    CRITICAL: You must extract and return EVERY single match mentioned in the text. Do not stop at just one match. Do not provide a partial list. Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
 
-    const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
-    });
-
-    let text = response.choices[0]?.message?.content;
-    if (!text) {
-      throw new Error("Failed to fetch news");
-    }
-
-    if (text.startsWith('```json')) {
-      text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
-    } else if (text.startsWith('```')) {
-      text = text.replace(/^```\n/, '').replace(/\n```$/, '');
-    }
+    let text = await generateWithAI(prompt);
+    if (text.startsWith('```json')) text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
+    else if (text.startsWith('```')) text = text.replace(/^```\n/, '').replace(/\n```$/, '');
 
     const result = JSON.parse(text);
     
-    // Support if it returns an array instead of the object
     if (Array.isArray(result)) {
       res.json({ articles: result });
     } else if (result.articles) {

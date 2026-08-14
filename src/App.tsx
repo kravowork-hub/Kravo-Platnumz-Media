@@ -13,6 +13,7 @@ import { ArticlePage } from './pages/ArticlePage';
 import { CategoryPage } from './pages/CategoryPage';
 import { SearchPage } from './pages/SearchPage';
 import { LiveScores } from './pages/LiveScores';
+import { TournamentScores } from './pages/TournamentScores';
 import { Videos } from './pages/Videos';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="category/:category" element={<CategoryPage />} />
             <Route path="search" element={<SearchPage />} />
             <Route path="scores" element={<LiveScores />} />
+            <Route path="scores/:id" element={<TournamentScores />} />
             <Route path="videos" element={<Videos />} />
           </Route>
 
