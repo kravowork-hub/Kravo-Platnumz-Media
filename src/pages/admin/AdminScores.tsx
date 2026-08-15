@@ -92,10 +92,13 @@ export function AdminScores() {
                const parsedMatches = parsedTournament.matches || [];
                
                parsedMatches.forEach((newMatch: TournamentMatch) => {
-                 const existingIdx = existingMatches.findIndex(m => 
-                   (m.player1.toLowerCase() === newMatch.player1.toLowerCase() && m.player2.toLowerCase() === newMatch.player2.toLowerCase()) || 
-                   (m.player1.toLowerCase() === newMatch.player2.toLowerCase() && m.player2.toLowerCase() === newMatch.player1.toLowerCase())
-                 );
+                 const existingIdx = existingMatches.findIndex(m => {
+                   const m1 = (m.player1 || '').toLowerCase();
+                   const m2 = (m.player2 || '').toLowerCase();
+                   const n1 = (newMatch.player1 || '').toLowerCase();
+                   const n2 = (newMatch.player2 || '').toLowerCase();
+                   return (m1 === n1 && m2 === n2) || (m1 === n2 && m2 === n1);
+                 });
                  
                  if (existingIdx >= 0) {
                    existingMatches[existingIdx] = { 
@@ -286,7 +289,7 @@ export function AdminScores() {
           {data.tournaments.map((tournament) => (
             <div key={tournament.id} className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-sm overflow-hidden mb-6">
               {/* Tournament Header */}
-              <div className="bg-[#111] p-4 border-b border-[var(--border-color)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="bg-[var(--bg-input)] p-4 border-b border-[var(--border-color)] flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex-1 flex gap-4 items-center w-full">
                   <input
                     type="text"
@@ -321,14 +324,14 @@ export function AdminScores() {
               </div>
 
               {/* AI Score Assistant for this Tournament */}
-              <div className="p-4 bg-[#1a1a1a] border-b border-[var(--border-color)]">
+              <div className="p-4 bg-[var(--bg-card)] border-b border-[var(--border-color)]">
                 <div className="flex flex-col md:flex-row gap-4 items-start">
                   <div className="flex-1 w-full">
                     <textarea
                       value={rawTexts[tournament.id] || ''}
                       onChange={(e) => setRawTexts(prev => ({ ...prev, [tournament.id]: e.target.value }))}
                       placeholder="Paste match results or fixtures for this tournament (e.g. O'Sullivan beat Trump 5-2)..."
-                      className="w-full h-16 bg-[#111] border border-[var(--border-color)] rounded-sm p-3 text-white text-xs focus:outline-none focus:border-[var(--accent)] transition-colors resize-none"
+                      className="w-full h-16 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-sm p-3 text-[var(--text-main)] text-xs focus:outline-none focus:border-[var(--accent)] transition-colors resize-none"
                     />
                   </div>
                   <button
@@ -345,7 +348,7 @@ export function AdminScores() {
               {/* Match List */}
               <div className="p-4 space-y-3">
                 {tournament.matches.map((match) => (
-                  <div key={match.id} className="bg-[var(--bg-input)] border border-white/5 p-3 rounded-sm flex flex-col md:flex-row gap-3 relative group">
+                  <div key={match.id} className="bg-[var(--bg-main)] border border-[var(--border-color)] p-3 rounded-sm flex flex-col md:flex-row gap-3 relative group">
                     <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3 items-center">
                       <div className="flex gap-2 items-center">
                         <input 
@@ -353,14 +356,14 @@ export function AdminScores() {
                           value={match.player1Flag || ''} 
                           onChange={e => updateMatch(tournament.id, match.id, 'player1Flag', e.target.value)}
                           placeholder="ZW"
-                          className="w-10 bg-transparent border-b border-white/10 px-1 py-1 text-xs text-white/50 text-center uppercase focus:outline-none focus:border-[var(--accent)]"
+                          className="w-10 bg-transparent border-b border-[var(--border-color)] px-1 py-1 text-xs text-[var(--text-main)] opacity-50 text-center uppercase focus:outline-none focus:border-[var(--accent)]"
                         />
                         <input 
                           type="text" 
-                          value={match.player1} 
+                          value={match.player1 || ''} 
                           onChange={e => updateMatch(tournament.id, match.id, 'player1', e.target.value)}
                           placeholder="Player 1"
-                          className="flex-1 bg-transparent border-b border-white/10 px-1 py-1 text-sm text-white focus:outline-none focus:border-[var(--accent)]"
+                          className="flex-1 bg-transparent border-b border-[var(--border-color)] px-1 py-1 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--accent)]"
                         />
                       </div>
                       
@@ -370,40 +373,38 @@ export function AdminScores() {
                           value={match.player2Flag || ''} 
                           onChange={e => updateMatch(tournament.id, match.id, 'player2Flag', e.target.value)}
                           placeholder="ZA"
-                          className="w-10 bg-transparent border-b border-white/10 px-1 py-1 text-xs text-white/50 text-center uppercase focus:outline-none focus:border-[var(--accent)]"
+                          className="w-10 bg-transparent border-b border-[var(--border-color)] px-1 py-1 text-xs text-[var(--text-main)] opacity-50 text-center uppercase focus:outline-none focus:border-[var(--accent)]"
                         />
                         <input 
                           type="text" 
-                          value={match.player2} 
+                          value={match.player2 || ''} 
                           onChange={e => updateMatch(tournament.id, match.id, 'player2', e.target.value)}
                           placeholder="Player 2"
-                          className="flex-1 bg-transparent border-b border-white/10 px-1 py-1 text-sm text-white focus:outline-none focus:border-[var(--accent)]"
+                          className="flex-1 bg-transparent border-b border-[var(--border-color)] px-1 py-1 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--accent)]"
                         />
                       </div>
-
                       <div className="flex items-center gap-2 justify-center">
                         <input 
                           type="text" 
-                          value={match.score1} 
+                          value={match.score1 || ''} 
                           onChange={e => updateMatch(tournament.id, match.id, 'score1', e.target.value)}
                           placeholder="0"
-                          className="w-8 text-center bg-[#111] border border-white/10 rounded-sm py-1 text-sm text-[var(--accent)] font-bold focus:outline-none focus:border-[var(--accent)]"
+                          className="w-8 text-center bg-[var(--bg-input)] border border-[var(--border-color)] rounded-sm py-1 text-sm text-[var(--accent)] font-bold focus:outline-none focus:border-[var(--accent)]"
                         />
-                        <span className="text-white/30 text-xs">-</span>
+                        <span className="text-[var(--text-main)] opacity-30 text-xs">-</span>
                         <input 
                           type="text" 
-                          value={match.score2} 
+                          value={match.score2 || ''} 
                           onChange={e => updateMatch(tournament.id, match.id, 'score2', e.target.value)}
                           placeholder="0"
-                          className="w-8 text-center bg-[#111] border border-white/10 rounded-sm py-1 text-sm text-[var(--accent)] font-bold focus:outline-none focus:border-[var(--accent)]"
+                          className="w-8 text-center bg-[var(--bg-input)] border border-[var(--border-color)] rounded-sm py-1 text-sm text-[var(--accent)] font-bold focus:outline-none focus:border-[var(--accent)]"
                         />
                       </div>
-
                       <div className="flex items-center gap-2 flex-wrap">
                         <select
-                          value={match.status}
+                          value={match.status || 'upcoming'}
                           onChange={e => updateMatch(tournament.id, match.id, 'status', e.target.value as any)}
-                          className="bg-[#111] border border-white/10 rounded-sm px-2 py-1 text-[10px] text-white uppercase tracking-widest focus:outline-none focus:border-[var(--accent)]"
+                          className="bg-[var(--bg-input)] border border-[var(--border-color)] rounded-sm px-2 py-1 text-[10px] text-[var(--text-main)] uppercase tracking-widest focus:outline-none focus:border-[var(--accent)]"
                         >
                           <option value="upcoming">Upcoming</option>
                           <option value="live">Live</option>
@@ -414,14 +415,14 @@ export function AdminScores() {
                           value={match.category || ''} 
                           onChange={e => updateMatch(tournament.id, match.id, 'category', e.target.value)}
                           placeholder="Category"
-                          className="w-20 bg-transparent border-b border-white/10 px-1 py-1 text-[10px] text-[var(--accent)] uppercase tracking-widest focus:outline-none focus:border-[var(--accent)]"
+                          className="w-20 bg-transparent border-b border-[var(--border-color)] px-1 py-1 text-[10px] text-[var(--accent)] uppercase tracking-widest focus:outline-none focus:border-[var(--accent)]"
                         />
                         <input 
                           type="text" 
-                          value={match.matchInfo} 
+                          value={match.matchInfo || ''} 
                           onChange={e => updateMatch(tournament.id, match.id, 'matchInfo', e.target.value)}
                           placeholder="Info (e.g. Final)"
-                          className="w-20 bg-transparent border-b border-white/10 px-1 py-1 text-xs text-white/70 focus:outline-none focus:border-[var(--accent)]"
+                          className="w-20 bg-transparent border-b border-[var(--border-color)] px-1 py-1 text-xs text-[var(--text-main)] opacity-70 focus:outline-none focus:border-[var(--accent)]"
                         />
                       </div>
                     </div>

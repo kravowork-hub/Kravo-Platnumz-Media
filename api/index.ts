@@ -15,31 +15,10 @@ async function generateWithAI(prompt: string): Promise<string> {
 
   let lastError = null;
 
-  // Try Gemini First (Primary Provider)
-  if (geminiApiKey) {
-    try {
-      const ai = new GoogleGenAI({ apiKey: geminiApiKey });
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        }
-      });
-      if (response.text) return response.text;
-    } catch (error: any) {
-      console.error("Gemini generation failed, falling back to Groq:", error.message || error);
-      lastError = error;
-      if (!groqApiKey) {
-        throw new Error(`Gemini failed and GROQ_API_KEY is not configured for fallback. Gemini Error: ${error.message}`);
-      }
-    }
-  }
-
-  // Try Groq as Fallback
+  // Try Groq First (Primary Provider)
   if (groqApiKey) {
     try {
-      const groq = new Groq({ apiKey: groqApiKey });
+      const groq = new Groq({ apiKey: groqApiKey, timeout: 15000 }); // 15 second timeout for robust fallback
       const response = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: [{ role: "user", content: prompt }],
@@ -48,8 +27,29 @@ async function generateWithAI(prompt: string): Promise<string> {
       const text = response.choices[0]?.message?.content;
       if (text) return text;
     } catch (error: any) {
-      console.error("Groq fallback generation failed:", error.message || error);
-      throw new Error(`AI generation failed. Groq Error: ${error.message}${lastError ? ` | Gemini Error: ${lastError.message}` : ''}`);
+      console.error("Groq generation failed or timed out, falling back to Gemini:", error.message || error);
+      lastError = error;
+      if (!geminiApiKey) {
+        throw new Error(`Groq failed and GEMINI_API_KEY is not configured for fallback. Groq Error: ${error.message}`);
+      }
+    }
+  }
+
+  // Try Gemini as Fallback
+  if (geminiApiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+      if (response.text) return response.text;
+    } catch (error: any) {
+      console.error("Gemini fallback generation failed:", error.message || error);
+      throw new Error(`AI generation failed. Gemini Error: ${error.message}${lastError ? ` | Groq Error: ${lastError.message}` : ''}`);
     }
   }
 

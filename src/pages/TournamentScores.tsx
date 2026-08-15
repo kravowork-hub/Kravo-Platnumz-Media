@@ -70,15 +70,15 @@ export function TournamentScores() {
   };
 
   const MatchCard: React.FC<{ match: TournamentMatch }> = ({ match }) => (
-    <div className="bg-[#0b1325] border border-white/5 rounded-lg p-0 overflow-hidden shadow-xl">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-0 overflow-hidden shadow-xl">
       {/* Header */}
-      <div className="flex justify-between items-center px-2 py-1.5 md:px-4 md:py-2 bg-[#121c32] border-b border-white/5">
+      <div className="flex justify-between items-center px-2 py-1.5 md:px-4 md:py-2 bg-[var(--bg-input)] border-b border-[var(--border-color)]">
         <div className="flex gap-2 items-center">
           <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-[#eab308] bg-[#eab308]/10 px-1 py-0.5 md:px-2 md:py-1 rounded-sm">
             {match.matchInfo || "Table TBD"}
           </span>
           {match.category && (
-            <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-white/50 truncate max-w-[60px] md:max-w-none">
+            <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-[var(--text-main)] opacity-50 truncate max-w-[60px] md:max-w-none">
               {match.category}
             </span>
           )}
@@ -90,38 +90,38 @@ export function TournamentScores() {
           </span>
         )}
         {match.status === 'completed' && (
-          <span className="text-white/40 text-[7px] md:text-[9px] font-bold uppercase tracking-widest bg-white/5 px-1 md:px-2 py-0.5 md:py-1 rounded-sm">FINAL</span>
+          <span className="text-[var(--text-main)] opacity-70 text-[7px] md:text-[9px] font-bold uppercase tracking-widest bg-[var(--text-main)]/5 px-1 md:px-2 py-0.5 md:py-1 rounded-sm">FINAL</span>
         )}
         {match.status === 'upcoming' && (
-          <span className="text-white/70 text-[7px] md:text-[9px] font-bold uppercase tracking-widest bg-white/10 px-1 md:px-2 py-0.5 md:py-1 rounded-sm">SCHEDULED</span>
+          <span className="text-[var(--text-main)] opacity-70 text-[7px] md:text-[9px] font-bold uppercase tracking-widest bg-[var(--text-main)]/10 px-1 md:px-2 py-0.5 md:py-1 rounded-sm">SCHEDULED</span>
         )}
       </div>
       
       {/* Players & Scores */}
-      <div className="p-2 md:p-4 flex flex-col gap-0 relative">
+      <div className="p-2 md:p-4 flex flex-col gap-0 relative bg-[var(--bg-card)]">
         {/* Player 1 */}
         <div className="flex justify-between items-center py-2 relative z-10">
           <div className="flex items-center gap-3">
-             {renderFlag(match.player1Flag) || <div className="w-5 h-3.5 bg-white/10 rounded-[1px]"></div>}
-             <span className={`text-xs md:text-base font-medium truncate max-w-[100px] md:max-w-[200px] ${match.status === 'completed' && match.score1 > match.score2 ? 'text-white font-bold' : 'text-white/80'}`}>
+             {renderFlag(match.player1Flag) || <div className="w-5 h-3.5 bg-[var(--text-main)] opacity-10 rounded-[1px]"></div>}
+             <span className={`text-xs md:text-base font-medium truncate max-w-[100px] md:max-w-[200px] ${match.status === 'completed' && match.score1 > match.score2 ? 'text-[var(--text-main)] font-bold' : 'text-[var(--text-main)] opacity-80'}`}>
                {match.player1 || "TBD"}
              </span>
           </div>
-          <span className={`text-sm md:text-lg font-bold ${match.status === 'completed' && match.score1 > match.score2 ? 'text-white' : 'text-white/60'}`}>
+          <span className={`text-sm md:text-lg font-bold ${match.status === 'completed' && match.score1 > match.score2 ? 'text-[var(--text-main)]' : 'text-[var(--text-main)] opacity-60'}`}>
             {match.score1 || "-"}
           </span>
         </div>
         {/* Divider */}
-        <div className="h-[1px] w-full bg-white/5 my-1"></div>
+        <div className="h-[1px] w-full bg-[var(--border-color)] my-1"></div>
         {/* Player 2 */}
         <div className="flex justify-between items-center py-2 relative z-10">
           <div className="flex items-center gap-3">
-            {renderFlag(match.player2Flag) || <div className="w-5 h-3.5 bg-white/10 rounded-[1px]"></div>}
-            <span className={`text-xs md:text-base font-medium truncate max-w-[100px] md:max-w-[200px] ${match.status === 'completed' && match.score2 > match.score1 ? 'text-white font-bold' : 'text-white/80'}`}>
+            {renderFlag(match.player2Flag) || <div className="w-5 h-3.5 bg-[var(--text-main)] opacity-10 rounded-[1px]"></div>}
+            <span className={`text-xs md:text-base font-medium truncate max-w-[100px] md:max-w-[200px] ${match.status === 'completed' && match.score2 > match.score1 ? 'text-[var(--text-main)] font-bold' : 'text-[var(--text-main)] opacity-80'}`}>
               {match.player2 || "TBD"}
             </span>
           </div>
-          <span className={`text-sm md:text-lg font-bold ${match.status === 'completed' && match.score2 > match.score1 ? 'text-white' : 'text-white/60'}`}>
+          <span className={`text-sm md:text-lg font-bold ${match.status === 'completed' && match.score2 > match.score1 ? 'text-[var(--text-main)]' : 'text-[var(--text-main)] opacity-60'}`}>
             {match.score2 || "-"}
           </span>
         </div>

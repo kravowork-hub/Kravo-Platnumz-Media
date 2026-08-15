@@ -79,7 +79,7 @@ export function Home() {
           <Link key={article.id} to={`/article/${article.slug}`} className="group flex flex-col bg-[#1a1a1a] border border-[#333] rounded-sm overflow-hidden hover:border-[#eab308] transition-colors">
             <div className="w-full aspect-[4/3] relative flex justify-center bg-black overflow-hidden">
               {article.coverImage ? (
-                <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               ) : (
                 <div className="w-full h-full bg-[#111]"></div>
               )}
@@ -144,6 +144,7 @@ export function Home() {
                 src={heroArticle.coverImage} 
                 alt={heroArticle.title}
                 referrerPolicy="no-referrer"
+                loading="lazy"
                 className="max-w-full h-auto"
               />
             </div>

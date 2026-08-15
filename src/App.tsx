@@ -24,6 +24,7 @@ import { AdminSocial } from './pages/admin/AdminSocial';
 import { AdminScores } from './pages/admin/AdminScores';
 import { AdminCategories } from './pages/admin/AdminCategories';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
+import { ScrollToTop } from './components/ScrollToTop';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -39,6 +40,7 @@ export default function App() {
     <HelmetProvider>
       <AuthProvider>
         <Router>
+          <ScrollToTop />
           <ThemeSwitcher />
         <Routes>
           {/* Public Routes */}

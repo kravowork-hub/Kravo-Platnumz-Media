@@ -79,7 +79,7 @@ export function ArticlePage() {
 
       {article.coverImage && (
         <div className="mb-12 mb-12 border border-[var(--border-hover)] bg-[var(--bg-input)] flex justify-center">
-          <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" className="max-w-full h-auto" />
+          <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" loading="lazy" className="max-w-full h-auto" />
         </div>
       )}
 

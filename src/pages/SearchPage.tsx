@@ -69,7 +69,7 @@ export function SearchPage() {
              <Link key={article.id} to={`/article/${article.slug}`} className="group flex flex-col h-full bg-[var(--bg-card)] border border-white/5 p-4 hover:border-[var(--border-hover)] transition-colors cursor-pointer">
              <div className="bg-[var(--bg-input)] overflow-hidden relative mb-4 flex justify-center">
                {article.coverImage ? (
-                 <img src={article.coverImage} alt={article.title} className="max-w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500" />
+                 <img src={article.coverImage} alt={article.title} loading="lazy" className="max-w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500" />
                ) : (
                  <div className="absolute inset-0 bg-[#222] opacity-80" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #333 0, #333 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
                )}
