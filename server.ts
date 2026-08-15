@@ -5,7 +5,7 @@ import apiApp from "./api/index.js";
 import dotenv from "dotenv";
 import fs from "fs";
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 dotenv.config();
 
@@ -36,16 +36,16 @@ async function getPageMetadata(urlPath: string) {
   let image = DEFAULT_IMAGE;
 
   try {
-    if (urlPath.startsWith('/articles/')) {
-      const articleId = urlPath.split('/')[2];
-      if (articleId) {
-        const articleRef = doc(db, "articles", articleId);
-        const articleSnap = await getDoc(articleRef);
-        if (articleSnap.exists()) {
-          const data = articleSnap.data();
+    if (urlPath.startsWith('/article/')) {
+      const slug = urlPath.split('/')[2];
+      if (slug) {
+        const q = query(collection(db, 'articles'), where('slug', '==', slug));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
           title = data.title ? `${data.title} - Platnumz Cuesport Official Website` : title;
-          description = (data.content || "").substring(0, 150).replace(/<[^>]+>/g, '') + "...";
-          image = data.imageUrl || image;
+          description = data.excerpt || (data.content || "").substring(0, 150).replace(/<[^>]+>/g, '') + "...";
+          image = data.coverImage || image;
         }
       }
     } else if (urlPath.startsWith('/scores')) {
@@ -67,18 +67,35 @@ async function getPageMetadata(urlPath: string) {
 function replaceMetaTags(html: string, meta: { title: string, description: string, image: string }) {
   html = html.replace(/<title>.*?<\/title>/i, `<title>${meta.title}</title>`);
   
-  if (html.includes('property="og:title"')) {
-    html = html.replace(/<meta property="og:title" content="[^"]*" \/>/i, `<meta property="og:title" content="${meta.title}" />`);
-  }
-  if (html.includes('property="og:description"')) {
-    html = html.replace(/<meta property="og:description" content="[^"]*" \/>/i, `<meta property="og:description" content="${meta.description}" />`);
-  }
+  // Replace Open Graph tags
+  html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${meta.title}" />`);
+  html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${meta.description}" />`);
   
-  if (html.includes('property="og:image"')) {
-    html = html.replace(/<meta property="og:image" content="[^"]*" \/>/i, `<meta property="og:image" content="${meta.image}" />`);
+  if (html.match(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i)) {
+    html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:image" content="${meta.image}" />`);
   } else {
     html = html.replace('</head>', `  <meta property="og:image" content="${meta.image}" />\n  </head>`);
   }
+
+  // Replace Twitter tags
+  if (html.match(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i)) {
+    html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${meta.title}" />`);
+  } else {
+    html = html.replace('</head>', `  <meta name="twitter:title" content="${meta.title}" />\n  </head>`);
+  }
+
+  if (html.match(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i)) {
+    html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${meta.description}" />`);
+  } else {
+    html = html.replace('</head>', `  <meta name="twitter:description" content="${meta.description}" />\n  </head>`);
+  }
+  
+  if (html.match(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i)) {
+    html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:image" content="${meta.image}" />`);
+  } else {
+    html = html.replace('</head>', `  <meta name="twitter:image" content="${meta.image}" />\n  </head>`);
+  }
+
   return html;
 }
 

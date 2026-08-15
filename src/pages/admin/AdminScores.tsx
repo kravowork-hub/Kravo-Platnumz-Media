@@ -10,8 +10,9 @@ export function AdminScores() {
     updatedAt: new Date().toISOString()
   });
   
-  const [rawText, setRawText] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [rawTexts, setRawTexts] = useState<Record<string, string>>({});
+  const [processingStates, setProcessingStates] = useState<Record<string, boolean>>({});
+  
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +38,7 @@ export function AdminScores() {
                  name: firestoreData.tournamentName,
                  status: 'active',
                  matches: firestoreData.matches || [],
-                updatedAt: new Date().toISOString()
+                 updatedAt: new Date().toISOString()
                }
              ],
              updatedAt: firestoreData.updatedAt
@@ -52,17 +53,22 @@ export function AdminScores() {
     }
   };
 
-  const handleProcessAI = async () => {
-    setIsProcessing(true);
+  const handleProcessAITournament = async (tournamentId: string) => {
+    const rawText = rawTexts[tournamentId];
+    if (!rawText) return;
+    
+    setProcessingStates(prev => ({ ...prev, [tournamentId]: true }));
     setMessage({ type: '', text: '' });
     
     try {
+      const currentTournament = data.tournaments.find(t => t.id === tournamentId);
+      
       const response = await fetch('/api/parse-scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           rawText, 
-          currentTournament: JSON.stringify(data.tournaments) 
+          currentTournament: JSON.stringify([currentTournament]) 
         })
       });
 
@@ -73,22 +79,56 @@ export function AdminScores() {
 
       const result = await response.json();
       
-      // Merge AI result with existing data
-      if (result.tournaments) {
-         // simplistic merge: just overwrite for now, or you could do deeper merging
-         setData({
-           tournaments: result.tournaments,
+      // Merge AI result with existing tournament
+      if (result.tournaments && result.tournaments.length > 0) {
+         const parsedTournament = result.tournaments[0]; // Take the first one found
+         
+         setData(prevData => ({
+           ...prevData,
+           tournaments: prevData.tournaments.map(t => {
+             if (t.id === tournamentId) {
+               // Intelligently merge matches
+               const existingMatches = [...t.matches];
+               const parsedMatches = parsedTournament.matches || [];
+               
+               parsedMatches.forEach((newMatch: TournamentMatch) => {
+                 const existingIdx = existingMatches.findIndex(m => 
+                   (m.player1.toLowerCase() === newMatch.player1.toLowerCase() && m.player2.toLowerCase() === newMatch.player2.toLowerCase()) || 
+                   (m.player1.toLowerCase() === newMatch.player2.toLowerCase() && m.player2.toLowerCase() === newMatch.player1.toLowerCase())
+                 );
+                 
+                 if (existingIdx >= 0) {
+                   existingMatches[existingIdx] = { 
+                     ...existingMatches[existingIdx], 
+                     ...newMatch, 
+                     id: existingMatches[existingIdx].id 
+                   };
+                 } else {
+                   existingMatches.push({
+                     ...newMatch,
+                     id: crypto.randomUUID()
+                   });
+                 }
+               });
+
+               return {
+                 ...t,
+                 matches: existingMatches
+               };
+             }
+             return t;
+           }),
            updatedAt: new Date().toISOString()
-         });
-         setRawText('');
+         }));
+         
+         setRawTexts(prev => ({ ...prev, [tournamentId]: '' }));
          setMessage({ type: 'success', text: 'AI extraction complete! Review changes and save.' });
       }
-
     } catch (error: any) {
       console.error('AI Processing error:', error);
       setMessage({ type: 'error', text: error.message || 'AI processing failed.' });
     } finally {
-      setIsProcessing(false);
+      setProcessingStates(prev => ({ ...prev, [tournamentId]: false }));
     }
   };
 
@@ -226,37 +266,10 @@ export function AdminScores() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 gap-8">
         
-        {/* Left Side: AI Input */}
-        <div className="xl:col-span-1 space-y-6">
-          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-sm p-4">
-            <h2 className="text-[12px] font-black uppercase tracking-widest text-white mb-4 flex items-center gap-2">
-              <Sparkles size={14} className="text-[var(--accent)]" /> 
-              AI Score Assistant
-            </h2>
-            <p className="text-[10px] text-white/50 leading-relaxed mb-4">
-              Paste tournament updates, results, or upcoming fixtures here. The AI will extract the details, categorize disciplines, flag players, and organize the board.
-            </p>
-            <textarea
-              value={rawText}
-              onChange={(e) => setRawText(e.target.value)}
-              placeholder="e.g. O'Sullivan (ENG) just beat Trump (ENG) 5-2 in Snooker Final..."
-              className="w-full h-48 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-sm p-3 text-white text-sm focus:outline-none focus:border-[var(--accent)] transition-colors mb-4 resize-none"
-            />
-            <button
-              onClick={handleProcessAI}
-              disabled={isProcessing || !rawText.trim()}
-              className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] text-white hover:text-[var(--accent)] hover:border-[var(--accent)] font-bold uppercase tracking-widest text-[10px] py-3 rounded-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-              {isProcessing ? 'Processing...' : 'Process with AI'}
-            </button>
-          </div>
-        </div>
-
-        {/* Right Side: Data Board */}
-        <div className="xl:col-span-3 space-y-8">
+        {/* Data Board */}
+        <div className="space-y-8">
           <div className="flex justify-between items-center border-b border-[var(--border-color)] pb-4">
             <h2 className="text-[12px] font-black uppercase tracking-widest text-white flex items-center gap-2">
               <Trophy size={14} className="text-[var(--accent)]"/>
@@ -303,6 +316,28 @@ export function AdminScores() {
                     className="text-[10px] text-red-500 font-bold uppercase tracking-widest flex items-center gap-1 hover:text-red-400 transition-colors whitespace-nowrap"
                   >
                     <Trash2 size={12} /> Remove
+                  </button>
+                </div>
+              </div>
+
+              {/* AI Score Assistant for this Tournament */}
+              <div className="p-4 bg-[#1a1a1a] border-b border-[var(--border-color)]">
+                <div className="flex flex-col md:flex-row gap-4 items-start">
+                  <div className="flex-1 w-full">
+                    <textarea
+                      value={rawTexts[tournament.id] || ''}
+                      onChange={(e) => setRawTexts(prev => ({ ...prev, [tournament.id]: e.target.value }))}
+                      placeholder="Paste match results or fixtures for this tournament (e.g. O'Sullivan beat Trump 5-2)..."
+                      className="w-full h-16 bg-[#111] border border-[var(--border-color)] rounded-sm p-3 text-white text-xs focus:outline-none focus:border-[var(--accent)] transition-colors resize-none"
+                    />
+                  </div>
+                  <button
+                    onClick={() => handleProcessAITournament(tournament.id)}
+                    disabled={processingStates[tournament.id] || !(rawTexts[tournament.id] || '').trim()}
+                    className="w-full md:w-auto bg-[var(--bg-input)] border border-[var(--border-color)] text-white hover:text-[var(--accent)] hover:border-[var(--accent)] font-bold uppercase tracking-widest text-[10px] px-6 py-4 rounded-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shrink-0 h-16"
+                  >
+                    {processingStates[tournament.id] ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                    {processingStates[tournament.id] ? 'Parsing...' : 'AI Add Matches'}
                   </button>
                 </div>
               </div>
