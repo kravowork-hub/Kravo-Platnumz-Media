@@ -28,7 +28,7 @@ app.use(apiApp);
 
 const DEFAULT_TITLE = "Platnumz Cuesport Official Website";
 const DEFAULT_DESC = "Your premier source for global cue sports news, tournament coverage, and player insights.";
-const DEFAULT_IMAGE = "https://i.imgur.com/slFYB1w.png";
+const DEFAULT_IMAGE = "https://i.imgur.com/77gpoV1.png";
 
 async function getPageMetadata(urlPath: string) {
   let title = DEFAULT_TITLE;

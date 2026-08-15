@@ -42,7 +42,7 @@ export function Layout() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
-              <img src="https://i.imgur.com/slFYB1w.png" alt="Platnumz Cuesport Logo" className="h-10 md:h-12 w-auto object-contain" />
+              <img src="https://i.imgur.com/77gpoV1.png" alt="Platnumz Cuesport Logo" className="h-10 md:h-12 w-auto object-contain" />
               <span className="font-bold text-xl tracking-tight whitespace-nowrap">Platnumz Cuesport</span>
             </Link>
 
@@ -93,7 +93,7 @@ export function Layout() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <Link to="/" className="flex items-center gap-3 mb-4">
-                <img src="https://i.imgur.com/slFYB1w.png" alt="Platnumz Cuesport Logo" className="h-8 md:h-10 w-auto object-contain" />
+                <img src="https://i.imgur.com/77gpoV1.png" alt="Platnumz Cuesport Logo" className="h-8 md:h-10 w-auto object-contain" />
                 <span className="font-bold text-lg text-[var(--text-main)] tracking-tight whitespace-nowrap">Platnumz Cuesport</span>
               </Link>
               <p className="text-sm">

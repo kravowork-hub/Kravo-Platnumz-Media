@@ -124,48 +124,91 @@ export function AdminArticles() {
         ) : articles.length === 0 ? (
           <div className="p-8 text-center text-[11px] font-bold uppercase tracking-widest text-white/50">No articles found. Create your first one!</div>
         ) : (
-          <table className="min-w-full divide-y divide-white/10">
-            <thead className="bg-[var(--bg-input)]">
-              <tr>
-                <th className="px-6 py-3 text-left text-[9px] font-black text-white/50 uppercase tracking-widest">Title</th>
-                <th className="px-6 py-3 text-left text-[9px] font-black text-white/50 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-3 text-left text-[9px] font-black text-white/50 uppercase tracking-widest">Date</th>
-                <th className="px-6 py-3 text-right text-[9px] font-black text-white/50 uppercase tracking-widest">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-[var(--bg-card)] divide-y divide-white/10">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+              <table className="min-w-full divide-y divide-white/10">
+                <thead className="bg-[var(--bg-input)]">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-[9px] font-black text-white/50 uppercase tracking-widest">Title</th>
+                    <th className="px-6 py-3 text-left text-[9px] font-black text-white/50 uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-3 text-left text-[9px] font-black text-white/50 uppercase tracking-widest">Date</th>
+                    <th className="px-6 py-3 text-right text-[9px] font-black text-white/50 uppercase tracking-widest">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-[var(--bg-card)] divide-y divide-white/10">
+                  {articles.map((article) => (
+                    <tr key={article.id} className="hover:bg-white/5 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Link to={`/admin/articles/${article.id}`} className="text-[11px] font-bold text-white hover:text-[var(--accent)] hover:underline">{article.title}</Link>
+                        <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">{article.categories.join(', ')}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-[9px] leading-5 font-black uppercase tracking-widest rounded-sm 
+                          ${article.status === 'published' ? 'bg-[var(--accent)] text-black' : 
+                            article.status === 'draft' ? 'bg-white/10 text-white/60' : 
+                            'bg-white/20 text-white'}`}
+                        >
+                          {article.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50">
+                        {format(new Date(article.createdAt), 'MMM d, yyyy')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-3">
+                          <Link to={`/admin/articles/${article.id}`} className="text-[var(--accent)] hover:text-white">
+                            <Edit size={16} />
+                          </Link>
+                          <button onClick={() => handleDelete(article.id!)} className="text-red-500/80 hover:text-red-400">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-white/10">
               {articles.map((article) => (
-                <tr key={article.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Link to={`/admin/articles/${article.id}`} className="text-[11px] font-bold text-white hover:text-[var(--accent)] hover:underline">{article.title}</Link>
-                    <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">{article.categories.join(', ')}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-[9px] leading-5 font-black uppercase tracking-widest rounded-sm 
+                <div key={article.id} className="p-4 hover:bg-white/5 transition-colors">
+                  <div className="flex justify-between items-start gap-4 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/admin/articles/${article.id}`} className="text-[11px] font-bold text-white hover:text-[var(--accent)] hover:underline block truncate mb-1">
+                        {article.title}
+                      </Link>
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 truncate">
+                        {article.categories.join(', ')}
+                      </div>
+                    </div>
+                    <span className={`shrink-0 px-2 inline-flex text-[9px] leading-5 font-black uppercase tracking-widest rounded-sm 
                       ${article.status === 'published' ? 'bg-[var(--accent)] text-black' : 
                         article.status === 'draft' ? 'bg-white/10 text-white/60' : 
                         'bg-white/20 text-white'}`}
                     >
                       {article.status}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-white/50">
-                    {format(new Date(article.createdAt), 'MMM d, yyyy')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end gap-3">
-                      <Link to={`/admin/articles/${article.id}`} className="text-[var(--accent)] hover:text-white">
-                        <Edit size={16} />
+                  </div>
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="text-[10px] font-bold text-white/50">
+                      {format(new Date(article.createdAt), 'MMM d, yyyy')}
+                    </div>
+                    <div className="flex justify-end gap-4">
+                      <Link to={`/admin/articles/${article.id}`} className="flex items-center gap-1 text-[var(--accent)] hover:text-white text-[10px] font-bold uppercase tracking-widest">
+                        <Edit size={14} /> Edit
                       </Link>
-                      <button onClick={() => handleDelete(article.id!)} className="text-red-500/80 hover:text-red-400">
-                        <Trash2 size={16} />
+                      <button onClick={() => handleDelete(article.id!)} className="flex items-center gap-1 text-red-500/80 hover:text-red-400 text-[10px] font-bold uppercase tracking-widest">
+                        <Trash2 size={14} /> Delete
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
     </div>

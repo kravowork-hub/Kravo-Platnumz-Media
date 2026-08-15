@@ -47,7 +47,7 @@ export function AdminLogin() {
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #444 0, #444 1px, transparent 0, transparent 10px)' }}></div>
         <div>
           <div className="mx-auto flex justify-center items-center gap-4 relative z-10">
-            <img src="https://i.imgur.com/slFYB1w.png" alt="Platnumz Cuesport Logo" className="h-16 w-auto object-contain" />
+            <img src="https://i.imgur.com/77gpoV1.png" alt="Platnumz Cuesport Logo" className="h-16 w-auto object-contain" />
             <span className="font-bold text-2xl tracking-tight text-white whitespace-nowrap">Platnumz Cuesport</span>
           </div>
           <h2 className="mt-6 text-center text-3xl font-black uppercase tracking-widest text-white relative z-10">

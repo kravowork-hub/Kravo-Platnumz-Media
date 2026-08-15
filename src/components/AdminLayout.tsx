@@ -33,7 +33,7 @@ export function AdminLayout() {
       )}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border-color)]">
           <Link to="/" className="flex items-center gap-3">
-            <img src="https://i.imgur.com/slFYB1w.png" alt="Platnumz Cuesport Logo" className="h-8 w-auto object-contain" />
+            <img src="https://i.imgur.com/77gpoV1.png" alt="Platnumz Cuesport Logo" className="h-8 w-auto object-contain" />
             <span className="font-bold text-sm tracking-tight text-white whitespace-nowrap">Platnumz Cuesport</span>
           </Link>
           <button 
