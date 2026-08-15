@@ -42,7 +42,7 @@ export function Home() {
           collection(db, 'articles'), 
           where('status', '==', 'published'),
           orderBy('createdAt', 'desc'), 
-          limit(10)
+          limit(50)
         );
         const snapshot = await getDocs(q);
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Article));
@@ -61,7 +61,13 @@ export function Home() {
   }
 
   const heroArticle = articles.length > 0 ? articles[0] : null;
-  const recentArticles = articles.length > 1 ? articles.slice(1) : [];
+  const remainingArticles = articles.length > 1 ? articles.slice(1) : [];
+
+  const thresholdDate = new Date();
+  thresholdDate.setDate(thresholdDate.getDate() - 3);
+
+  const recentArticles = remainingArticles.filter(a => new Date(a.createdAt) >= thresholdDate);
+  const moreArticles = remainingArticles.filter(a => new Date(a.createdAt) < thresholdDate);
 
   const ArticleList = ({ items, title }: { items: Article[], title: string }) => (
     <div className="mb-10 px-4">
@@ -191,6 +197,11 @@ export function Home() {
       {/* Recent Articles */}
       {recentArticles.length > 0 && (
         <ArticleList items={recentArticles} title="Latest News" />
+      )}
+
+      {/* More News */}
+      {moreArticles.length > 0 && (
+        <ArticleList items={moreArticles} title="More News" />
       )}
     </div>
   );

@@ -111,8 +111,9 @@ export function Layout() {
             <div>
               <h3 className="text-[var(--text-main)] font-semibold mb-4 uppercase text-sm tracking-wider">Connect</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-blue-400">Twitter</a></li>
-                <li><a href="#" className="hover:text-blue-400">Facebook</a></li>
+                <li><a href="https://www.facebook.com/share/1EXtDbFsLu/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">Facebook</a></li>
+                <li><a href="https://www.instagram.com/kravo_platnvmz_official?igsh=MW9uNXI0cjYyY2Z5eA==" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">Instagram</a></li>
+                <li><a href="https://www.tiktok.com/@kravoplatnumzofficial?_r=1&_t=ZS-98ti24ifVsC" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">TikTok</a></li>
                 <li><a href="https://whatsapp.com/channel/0029Va8ZB5LJpe8fqDvigx3O" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">WhatsApp</a></li>
                 <li className="mt-4"><Link to="/admin" className="text-gray-600 hover:text-gray-300 text-xs uppercase tracking-widest">Admin Login</Link></li>
               </ul>

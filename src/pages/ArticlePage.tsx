@@ -4,7 +4,7 @@ import { collection, query, where, getDocs, updateDoc, doc, increment } from 'fi
 import { db } from '../lib/firebase';
 import { Article } from '../types';
 import { format } from 'date-fns';
-import { Facebook, Twitter, Link as LinkIcon, Share2 } from 'lucide-react';
+import { Facebook, Link as LinkIcon, Share2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 export function ArticlePage() {
@@ -92,9 +92,6 @@ export function ArticlePage() {
             </div>
             <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-blue-600 text-[var(--text-main)] flex items-center justify-center hover:bg-blue-700 transition-colors">
               <Facebook size={18} />
-            </a>
-            <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(article.title)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#222] text-[var(--text-main)] flex items-center justify-center hover:bg-[#333] transition-colors">
-              <Twitter size={18} />
             </a>
             <button onClick={() => {navigator.clipboard.writeText(currentUrl); alert('Link copied!');}} className="w-10 h-10 bg-[#222] text-[var(--text-main)] flex items-center justify-center hover:bg-[#333] transition-colors">
               <LinkIcon size={18} />
