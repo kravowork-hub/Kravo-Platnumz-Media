@@ -4,6 +4,7 @@ import { db } from '../lib/firebase';
 import { Article, LiveScoreData } from '../types';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 import { PlayCircle, Bell, Circle } from 'lucide-react';
 
 export function Home() {
@@ -72,9 +73,14 @@ export function Home() {
               )}
             </div>
             <div className="flex-1 p-3 flex flex-col justify-start relative">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#eab308] mb-2 truncate">
-                {article.categories[0] || 'News'}
-              </span>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-[#eab308] truncate">
+                  {article.categories[0] || 'News'}
+                </span>
+                <span className="text-[9px] text-white/40 whitespace-nowrap">
+                  {format(new Date(article.createdAt), 'MMM d, yyyy')}
+                </span>
+              </div>
               <h3 className="text-white/90 font-bold text-xs leading-snug line-clamp-3 group-hover:text-white transition-colors">
                 {article.title}
               </h3>
@@ -118,6 +124,10 @@ export function Home() {
             </div>
           )}
           <div className="px-4 mb-6">
+            <div className="text-xs font-bold uppercase tracking-widest text-[#eab308] mb-3">
+              {format(new Date(heroArticle.createdAt), 'MMM d, yyyy')}
+              {heroArticle.categories[0] && <span className="text-white/40"> | {heroArticle.categories[0]}</span>}
+            </div>
             <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 max-w-3xl mx-auto leading-tight">
               {heroArticle.title}
             </h1>
