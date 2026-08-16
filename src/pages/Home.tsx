@@ -102,8 +102,8 @@ export function Home() {
         <title>PLATNUMZ CUESPORT by Kravo | Global Cue Sports News</title>
         <meta property="og:title" content="PLATNUMZ CUESPORT by Kravo" />
         <meta property="og:description" content="Your premier source for global cue sports news, tournament coverage, and player insights." />
-        <meta property="og:image" content="https://i.imgur.com/77gpoV1.png" />
-        <meta name="twitter:image" content="https://i.imgur.com/77gpoV1.png" />
+        <meta property="og:image" content="https://i.imgur.com/2QVQb4w.png" />
+        <meta name="twitter:image" content="https://i.imgur.com/2QVQb4w.png" />
         <meta name="twitter:title" content="PLATNUMZ CUESPORT by Kravo" />
         <meta name="twitter:description" content="Your premier source for global cue sports news, tournament coverage, and player insights." />
         <meta property="og:type" content="website" />
