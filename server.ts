@@ -36,8 +36,9 @@ async function getPageMetadata(urlPath: string) {
   let image = DEFAULT_IMAGE;
 
   try {
-    if (urlPath.startsWith('/article/')) {
-      const slug = urlPath.split('/')[2];
+    const pathOnly = urlPath.split('?')[0];
+    if (pathOnly.startsWith('/article/')) {
+      const slug = pathOnly.split('/')[2];
       if (slug) {
         const q = query(collection(db, 'articles'), where('slug', '==', slug));
         const snapshot = await getDocs(q);
@@ -48,13 +49,13 @@ async function getPageMetadata(urlPath: string) {
           image = data.coverImage || image;
         }
       }
-    } else if (urlPath.startsWith('/scores')) {
+    } else if (pathOnly.startsWith('/scores')) {
       title = "Live Scores - Platnumz Cuesport Official Website";
       description = "Follow live scores and tournament updates.";
-    } else if (urlPath.startsWith('/videos')) {
+    } else if (pathOnly.startsWith('/videos')) {
       title = "Live Videos - Platnumz Cuesport Official Website";
       description = "Watch live streams and featured cue sport videos.";
-    } else if (urlPath.startsWith('/search')) {
+    } else if (pathOnly.startsWith('/search')) {
       title = "Search - Platnumz Cuesport Official Website";
     }
   } catch (e) {
@@ -65,11 +66,14 @@ async function getPageMetadata(urlPath: string) {
 }
 
 function replaceMetaTags(html: string, meta: { title: string, description: string, image: string }) {
+  const safeTitle = meta.title.replace(/"/g, '&quot;');
+  const safeDesc = meta.description.replace(/"/g, '&quot;');
+  
   html = html.replace(/<title>.*?<\/title>/i, `<title>${meta.title}</title>`);
   
   // Replace Open Graph tags
-  html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${meta.title}" />`);
-  html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${meta.description}" />`);
+  html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${safeTitle}" />`);
+  html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${safeDesc}" />`);
   
   if (html.match(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i)) {
     html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:image" content="${meta.image}" />`);
@@ -79,15 +83,15 @@ function replaceMetaTags(html: string, meta: { title: string, description: strin
 
   // Replace Twitter tags
   if (html.match(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i)) {
-    html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${meta.title}" />`);
+    html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${safeTitle}" />`);
   } else {
-    html = html.replace('</head>', `  <meta name="twitter:title" content="${meta.title}" />\n  </head>`);
+    html = html.replace('</head>', `  <meta name="twitter:title" content="${safeTitle}" />\n  </head>`);
   }
 
   if (html.match(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i)) {
-    html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${meta.description}" />`);
+    html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${safeDesc}" />`);
   } else {
-    html = html.replace('</head>', `  <meta name="twitter:description" content="${meta.description}" />\n  </head>`);
+    html = html.replace('</head>', `  <meta name="twitter:description" content="${safeDesc}" />\n  </head>`);
   }
   
   if (html.match(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i)) {
