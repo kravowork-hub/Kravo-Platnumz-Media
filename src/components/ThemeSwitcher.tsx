@@ -13,7 +13,7 @@ export function ThemeSwitcher() {
     { id: 'classic', name: 'Classic Newspaper', color: '#b91c1c', bg: '#ffffff' },
     { id: 'sports', name: 'Modern Sports', color: '#f97316', bg: '#0f172a' },
     { id: 'editorial', name: 'Editorial Magazine', color: '#85754d', bg: '#fdfbf7' },
-    { id: 'midnight', name: 'Midnight Broadcast', color: '#C0C0C0', bg: '#050505' },
+    { id: 'midnight', name: 'Midnight Broadcast', color: '#eab308', bg: '#000000' },
   ];
 
   return (

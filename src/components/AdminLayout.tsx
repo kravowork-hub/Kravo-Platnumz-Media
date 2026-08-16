@@ -20,6 +20,7 @@ export function AdminLayout() {
     { name: 'Articles', path: '/admin/articles', icon: FileText },
     { name: 'Categories', path: '/admin/categories', icon: Tags },
     { name: 'Live Scores', path: '/admin/scores', icon: Trophy },
+    { name: 'Rankings', path: '/admin/rankings', icon: Trophy },
     { name: 'Live Video', path: '/admin/video', icon: Video },
     { name: 'Social Feeds', path: '/admin/social', icon: Share2 },
   ];
