@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { initializeFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCSWnRJ84srEDu9VuMh-qGOZnGiE6jRAaU",
@@ -11,9 +11,17 @@ const firebaseConfig = {
   appId: "1:1090119514750:web:5c4df084357b429e9c362f",
 };
 
+let dbInstance: ReturnType<typeof initializeFirestore> | null = null;
+
 function getDb() {
+  if (dbInstance) return dbInstance;
   const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-  return getFirestore(app, "ai-studio-6b064c02-fc9c-4f48-819d-8341cd76fcbc");
+  // Serverless functions (short-lived, no persistent connections) frequently
+  // hang or silently fail on Firestore's default gRPC transport. Forcing
+  // long-polling makes it use plain HTTP requests instead, which is reliable
+  // in this environment.
+  dbInstance = initializeFirestore(app, { experimentalForceLongPolling: true }, "ai-studio-6b064c02-fc9c-4f48-819d-8341cd76fcbc");
+  return dbInstance;
 }
 
 const DEFAULT_TITLE = "Platnumz Cuesport Official Website";
