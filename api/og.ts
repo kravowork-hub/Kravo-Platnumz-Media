@@ -1,0 +1,92 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCSWnRJ84srEDu9VuMh-qGOZnGiE6jRAaU",
+  authDomain: "gen-lang-client-0328705124.firebaseapp.com",
+  projectId: "gen-lang-client-0328705124",
+  storageBucket: "gen-lang-client-0328705124.firebasestorage.app",
+  messagingSenderId: "1090119514750",
+  appId: "1:1090119514750:web:5c4df084357b429e9c362f",
+};
+
+function getDb() {
+  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+  return getFirestore(app, "ai-studio-6b064c02-fc9c-4f48-819d-8341cd76fcbc");
+}
+
+const DEFAULT_TITLE = "Platnumz Cuesport Official Website";
+const DEFAULT_DESC = "Your premier source for global cue sports news, tournament coverage, and player insights.";
+const DEFAULT_IMAGE = "https://i.imgur.com/2QVQb4w.png";
+
+function escapeHtml(str: string) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const path = typeof req.query.path === 'string' ? req.query.path : '/';
+
+  let title = DEFAULT_TITLE;
+  let description = DEFAULT_DESC;
+  let image = DEFAULT_IMAGE;
+  let type = 'website';
+
+  try {
+    if (path.startsWith('/article/')) {
+      const slug = path.split('/')[2];
+      if (slug) {
+        const db = getDb();
+        const q = query(collection(db, 'articles'), where('slug', '==', slug));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
+          title = data.title ? `${data.title} - ${DEFAULT_TITLE}` : title;
+          description = data.excerpt || (data.content || '').replace(/<[^>]+>/g, '').substring(0, 150) + '...';
+          image = data.coverImage || image;
+          type = 'article';
+        }
+      }
+    }
+  } catch (e) {
+    console.error('OG metadata fetch failed:', e);
+  }
+
+  const host = (req.headers['x-forwarded-host'] as string) || req.headers.host;
+  const proto = (req.headers['x-forwarded-proto'] as string) || 'https';
+  const pageUrl = `${proto}://${host}${path}`;
+
+  const safeTitle = escapeHtml(title);
+  const safeDesc = escapeHtml(description);
+  const safeImage = escapeHtml(image);
+  const safeUrl = escapeHtml(pageUrl);
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>${safeTitle}</title>
+<meta property="og:title" content="${safeTitle}" />
+<meta property="og:description" content="${safeDesc}" />
+<meta property="og:type" content="${type}" />
+<meta property="og:image" content="${safeImage}" />
+<meta property="og:url" content="${safeUrl}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="${safeTitle}" />
+<meta name="twitter:description" content="${safeDesc}" />
+<meta name="twitter:image" content="${safeImage}" />
+<meta http-equiv="refresh" content="0; url=${safeUrl}" />
+</head>
+<body>
+<p><a href="${safeUrl}">${safeTitle}</a></p>
+</body>
+</html>`;
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate');
+  res.status(200).send(html);
+}
