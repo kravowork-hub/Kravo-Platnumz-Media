@@ -4,13 +4,11 @@ import { db } from '../lib/firebase';
 import { Article, LiveScoreData } from '../types';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
-import { PlayCircle, Radio, Bell, Circle } from 'lucide-react';
+import { PlayCircle, Bell, Circle } from 'lucide-react';
 
 export function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [featuredVideo, setFeaturedVideo] = useState<{ url: string, isLive: boolean } | null>(null);
   const [liveScores, setLiveScores] = useState<LiveScoreData | null>(null);
   
   useEffect(() => {
@@ -20,22 +18,6 @@ export function Home() {
         const scoresSnap = await getDoc(scoresRef);
         if (scoresSnap.exists()) {
           setLiveScores(scoresSnap.data() as LiveScoreData);
-        }
-
-        const docRef = doc(db, 'settings', 'videos');
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && docSnap.data().items && docSnap.data().items.length > 0) {
-          const featured = docSnap.data().items[0];
-          setFeaturedVideo({ url: featured.url, isLive: featured.isLive });
-        } else {
-          // Fallback
-          const videoDoc = await getDoc(doc(db, 'settings', 'featured_video'));
-          if (videoDoc.exists()) {
-            const vData = videoDoc.data();
-            if (vData.url) {
-              setFeaturedVideo({ url: vData.url, isLive: vData.isLive });
-            }
-          }
         }
         
         const q = query(
@@ -121,29 +103,11 @@ export function Home() {
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
-      {/* Featured Video Notification Header */}
-      {featuredVideo && (
-        <div className="bg-[#0f6f4d] py-3 px-4 text-center">
-          <div className="text-white text-sm mb-2">{format(new Date(), 'MMMM d HH:mm')}</div>
-          <Link to="/videos" className="inline-block border border-white text-white font-bold px-6 py-2 rounded-full hover:bg-white hover:text-[#0f6f4d] transition-colors">
-            Latest Videos
-          </Link>
-        </div>
-      )}
-
       {/* Hero Section */}
       {heroArticle && (
         <section className="text-center pt-8 pb-4">
-          <div className="px-4 mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 max-w-3xl mx-auto leading-tight">
-              {heroArticle.title}
-            </h1>
-            <Link to={`/article/${heroArticle.slug}`} className="inline-block border border-[#eab308] text-white font-bold px-8 py-2 rounded-full hover:bg-[#eab308] hover:text-black transition-colors">
-              Read More
-            </Link>
-          </div>
           {heroArticle.coverImage && (
-            <div className="w-full relative flex justify-center bg-black">
+            <div className="w-full relative flex justify-center bg-black mb-6">
               <img 
                 src={heroArticle.coverImage} 
                 alt={heroArticle.title}
@@ -153,6 +117,14 @@ export function Home() {
               />
             </div>
           )}
+          <div className="px-4 mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 max-w-3xl mx-auto leading-tight">
+              {heroArticle.title}
+            </h1>
+            <Link to={`/article/${heroArticle.slug}`} className="inline-block border border-[#eab308] text-white font-bold px-8 py-2 rounded-full hover:bg-[#eab308] hover:text-black transition-colors">
+              Read More
+            </Link>
+          </div>
         </section>
       )}
 
