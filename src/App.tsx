@@ -15,6 +15,7 @@ import { SearchPage } from './pages/SearchPage';
 import { LiveScores } from './pages/LiveScores';
 import { TournamentScores } from './pages/TournamentScores';
 import { Videos } from './pages/Videos';
+import { Rankings } from './pages/Rankings';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminArticles } from './pages/admin/AdminArticles';
@@ -23,6 +24,7 @@ import { AdminVideo } from './pages/admin/AdminVideo';
 import { AdminSocial } from './pages/admin/AdminSocial';
 import { AdminScores } from './pages/admin/AdminScores';
 import { AdminCategories } from './pages/admin/AdminCategories';
+import { AdminRankings } from './pages/admin/AdminRankings';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { ScrollToTop } from './components/ScrollToTop';
 
@@ -52,6 +54,7 @@ export default function App() {
             <Route path="scores" element={<LiveScores />} />
             <Route path="scores/:id" element={<TournamentScores />} />
             <Route path="videos" element={<Videos />} />
+            <Route path="rankings" element={<Rankings />} />
           </Route>
 
           {/* Admin Routes */}
@@ -69,6 +72,7 @@ export default function App() {
             <Route path="video" element={<AdminVideo />} />
             <Route path="social" element={<AdminSocial />} />
             <Route path="scores" element={<AdminScores />} />
+            <Route path="rankings" element={<AdminRankings />} />
           </Route>
         </Routes>
       </Router>
