@@ -2,17 +2,38 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  /* Default: Midnight Broadcast */
-  --bg-main: #050505;
+  /* Default: Midnight Broadcast (Tour style) */
+  --bg-main: #000000;
   --bg-card: #0a0a0a;
   --bg-input: #111;
   --text-main: #e5e5e5;
-  --accent: #C0C0C0;
+  --accent: #eab308;
   --accent-text: #000;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --border-hover: rgba(255, 255, 255, 0.2);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.25);
   --text-dark: #222;
   --bg-dark: #222;
+  --font-display: 'Oswald', 'Inter', sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.brand-wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+h1, h2, h3, .section-heading {
+  font-family: var(--font-display);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
 [data-theme="classic"] {
