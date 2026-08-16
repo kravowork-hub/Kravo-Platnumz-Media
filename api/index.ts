@@ -237,6 +237,49 @@ app.post("/api/auto-fetch-news", async (req, res) => {
   }
 });
 
+app.post("/api/parse-rankings", async (req, res) => {
+  try {
+    const { rawText, disciplineName, currentRankings } = req.body;
+    if (!rawText) {
+      return res.status(400).json({ error: "Raw text is required" });
+    }
+
+    const prompt = `You are an expert cue sports data parser. Given the following raw, unstructured text listing player rankings for the discipline "${disciplineName || 'Unknown'}", extract ALL ranked players (do not leave any out) and format them into a clean JSON array, ordered by rank.
+
+    Current Rankings (if known, for reference/merging context): ${currentRankings || "Not provided"}
+
+    Raw Text:
+    """
+    ${rawText}
+    """
+
+    Please return ONLY a JSON object with this exact structure:
+    {
+      "rankings": [
+        {
+          "rank": 1,
+          "name": "Full player name",
+          "flag": "ISO 3166-1 alpha-2 country code (e.g. 'PH', 'SG', 'US') if mentioned or deducible, else empty string",
+          "points": "Points/rating value as a string (e.g. '620') or empty string if not mentioned",
+          "club": "Team or club name if mentioned, else empty string"
+        }
+      ]
+    }
+
+    CRITICAL: You must extract and return EVERY single player mentioned in the text, in correct rank order. Do not stop early. Do not provide a partial list. Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json around the response.`;
+
+    let text = await generateWithAI(prompt);
+    if (text.startsWith('```json')) text = text.replace(/^```json\n/, '').replace(/\n```$/, '');
+    else if (text.startsWith('```')) text = text.replace(/^```\n/, '').replace(/\n```$/, '');
+
+    const result = JSON.parse(text);
+    res.json(result);
+  } catch (error: any) {
+    console.error("Error parsing rankings:", error);
+    res.status(500).json({ error: error.message || "Failed to parse rankings" });
+  }
+});
+
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error("API Error:", err);
   if (err.type === 'entity.too.large') {
