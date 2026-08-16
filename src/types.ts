@@ -8,6 +8,7 @@ export interface Article {
   authorId: string;
   authorName: string;
   status: 'draft' | 'published' | 'scheduled';
+  isHero?: boolean;
   publishDate: string;
   categories: string[];
   tags: string[];

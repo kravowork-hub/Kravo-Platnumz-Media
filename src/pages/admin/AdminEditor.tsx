@@ -33,6 +33,7 @@ export function AdminEditor() {
   const [excerpt, setExcerpt] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled'>('draft');
+  const [isHero, setIsHero] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [tags, setTags] = useState('');
 
@@ -59,6 +60,7 @@ export function AdminEditor() {
           setExcerpt(data.excerpt || '');
           setCoverImage(data.coverImage || '');
           setStatus(data.status || 'draft');
+          setIsHero(data.isHero || false);
           setSelectedCategories(data.categories || []);
           setTags((data.tags || []).join(', '));
         }
@@ -147,6 +149,7 @@ export function AdminEditor() {
       excerpt,
       coverImage,
       status,
+      isHero,
       categories: selectedCategories,
       tags: tagsArray,
       authorId: 'admin_user',
@@ -307,6 +310,19 @@ export function AdminEditor() {
               <option value="published">Published</option>
               <option value="scheduled">Scheduled</option>
             </select>
+            
+            <div className="flex items-center gap-2 mb-6 mt-4">
+              <input
+                type="checkbox"
+                id="isHero"
+                checked={isHero}
+                onChange={(e) => setIsHero(e.target.checked)}
+                className="w-4 h-4 rounded-sm border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--accent)] focus:ring-[var(--accent)]"
+              />
+              <label htmlFor="isHero" className="text-sm font-bold text-white">
+                Featured Hero Article (Pin to Homepage)
+              </label>
+            </div>
             
             <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--accent)] mb-2">Cover Image URL</label>
             <input 

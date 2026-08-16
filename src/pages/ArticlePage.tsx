@@ -10,6 +10,7 @@ import { Helmet } from 'react-helmet-async';
 export function ArticlePage() {
   const { slug } = useParams();
   const [article, setArticle] = useState<Article | null>(null);
+  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,6 +39,30 @@ export function ArticlePage() {
     if (slug) fetchArticle();
   }, [slug]);
 
+  useEffect(() => {
+    const fetchRelated = async () => {
+      if (!article || !article.categories || article.categories.length === 0) return;
+      try {
+        const category = article.categories[0];
+        const q = query(
+          collection(db, 'articles'),
+          where('categories', 'array-contains', category),
+          where('status', '==', 'published')
+        );
+        const snapshot = await getDocs(q);
+        const related = snapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() } as Article))
+          .filter(a => a.id !== article.id)
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 3);
+        setRelatedArticles(related);
+      } catch (e) {
+        console.error("Error fetching related articles:", e);
+      }
+    };
+    fetchRelated();
+  }, [article?.id]);
+
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading article...</div>;
   if (!article) return <div className="min-h-screen flex items-center justify-center">Article not found</div>;
 
@@ -49,7 +74,14 @@ export function ArticlePage() {
         <title>{article.title} - PLATNUMZ CUESPORT</title>
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.excerpt} />
-        {article.coverImage && <meta property="og:image" content={article.coverImage} />}
+        {article.coverImage && (
+          <>
+            <meta property="og:image" content={article.coverImage} />
+            <meta name="twitter:image" content={article.coverImage} />
+          </>
+        )}
+        <meta name="twitter:title" content={article.title} />
+        <meta name="twitter:description" content={article.excerpt} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={currentUrl} />
         <meta name="twitter:card" content="summary_large_image" />
@@ -119,6 +151,40 @@ export function ArticlePage() {
           )}
         </div>
       </div>
+
+      {/* Related Articles */}
+      {relatedArticles.length > 0 && (
+        <div className="mt-20 pt-12 border-t border-[var(--border-color)]">
+          <h3 className="text-2xl font-black italic tracking-tighter uppercase text-[var(--text-main)] mb-8">Related Articles</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {relatedArticles.map(related => (
+              <Link key={related.id} to={`/article/${related.slug}`} className="group flex flex-col h-full bg-[var(--bg-card)] border border-[var(--border-color)] p-4 hover:border-[var(--border-hover)] transition-colors cursor-pointer">
+                <div className="bg-[var(--bg-input)] aspect-video overflow-hidden relative mb-4 flex justify-center">
+                  {related.coverImage ? (
+                    <img src={related.coverImage} alt={related.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="absolute inset-0 bg-[#222] opacity-80" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #333 0, #333 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
+                  )}
+                  <div className="absolute top-4 left-4 bg-[var(--accent)] text-[var(--accent-text)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest shadow-sm">
+                    {related.categories[0]}
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col">
+                  <h4 className="text-lg font-bold text-[var(--text-main)] mb-2 line-clamp-2 group-hover:text-[var(--accent)] transition-colors leading-tight">
+                    {related.title}
+                  </h4>
+                  <p className="text-[var(--text-main)]/60 text-sm line-clamp-2 mb-4 flex-1">
+                    {related.excerpt}
+                  </p>
+                  <div className="flex items-center text-[10px] font-bold text-[var(--text-main)]/40 uppercase tracking-widest mt-auto">
+                    <span>{format(new Date(related.createdAt), 'MMM d, yyyy')}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </article>
   );
 }

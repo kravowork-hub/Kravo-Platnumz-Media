@@ -60,8 +60,8 @@ export function Home() {
     return <div className="min-h-[50vh] flex items-center justify-center">Loading news...</div>;
   }
 
-  const heroArticle = articles.length > 0 ? articles[0] : null;
-  const remainingArticles = articles.length > 1 ? articles.slice(1) : [];
+  const heroArticle = articles.find(a => a.isHero) || (articles.length > 0 ? articles[0] : null);
+  const remainingArticles = articles.filter(a => a.id !== heroArticle?.id);
 
   const thresholdDate = new Date();
   thresholdDate.setDate(thresholdDate.getDate() - 3);
@@ -114,6 +114,10 @@ export function Home() {
         <title>PLATNUMZ CUESPORT by Kravo | Global Cue Sports News</title>
         <meta property="og:title" content="PLATNUMZ CUESPORT by Kravo" />
         <meta property="og:description" content="Your premier source for global cue sports news, tournament coverage, and player insights." />
+        <meta property="og:image" content="https://i.imgur.com/77gpoV1.png" />
+        <meta name="twitter:image" content="https://i.imgur.com/77gpoV1.png" />
+        <meta name="twitter:title" content="PLATNUMZ CUESPORT by Kravo" />
+        <meta name="twitter:description" content="Your premier source for global cue sports news, tournament coverage, and player insights." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
