@@ -13,8 +13,19 @@ export interface Article {
   categories: string[];
   tags: string[];
   views: number;
+  reactions?: { [key: string]: number };
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Comment {
+  id?: string;
+  articleId: string;
+  articleSlug: string;
+  name: string;
+  message: string;
+  approved: boolean;
+  createdAt: string;
 }
 
 export interface TournamentMatch {
@@ -40,6 +51,27 @@ export interface TournamentData {
 
 export interface LiveScoreData {
   tournaments: TournamentData[];
+  updatedAt: string;
+}
+
+export interface RankingPlayer {
+  id: string;
+  rank: number;
+  name: string;
+  flag?: string; // ISO 3166-1 alpha-2 country code
+  points?: string;
+  club?: string;
+}
+
+export interface Discipline {
+  id: string;
+  name: string; // e.g. "9-Ball", "Snooker", "Heyball"
+  rankings: RankingPlayer[];
+  updatedAt: string;
+}
+
+export interface RankingsData {
+  disciplines: Discipline[];
   updatedAt: string;
 }
 

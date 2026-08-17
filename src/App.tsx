@@ -25,6 +25,7 @@ import { AdminSocial } from './pages/admin/AdminSocial';
 import { AdminScores } from './pages/admin/AdminScores';
 import { AdminCategories } from './pages/admin/AdminCategories';
 import { AdminRankings } from './pages/admin/AdminRankings';
+import { AdminComments } from './pages/admin/AdminComments';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { ScrollToTop } from './components/ScrollToTop';
 
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="social" element={<AdminSocial />} />
             <Route path="scores" element={<AdminScores />} />
             <Route path="rankings" element={<AdminRankings />} />
+            <Route path="comments" element={<AdminComments />} />
           </Route>
         </Routes>
       </Router>
