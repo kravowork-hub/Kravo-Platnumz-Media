@@ -1,17 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { collection, query, where, getDocs, updateDoc, doc, increment } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, increment, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Article } from '../types';
+import { Article, Comment } from '../types';
 import { format } from 'date-fns';
-import { Facebook, Link as LinkIcon, Share2 } from 'lucide-react';
+import { Facebook, Link as LinkIcon, Share2, MessageCircle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+
+const REACTIONS: { key: string; emoji: string; label: string }[] = [
+  { key: 'like', emoji: '👍', label: 'Like' },
+  { key: 'love', emoji: '❤️', label: 'Love' },
+  { key: 'fire', emoji: '🔥', label: 'Fire' },
+  { key: 'wow', emoji: '😮', label: 'Wow' },
+];
 
 export function ArticlePage() {
   const { slug } = useParams();
   const [article, setArticle] = useState<Article | null>(null);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentName, setCommentName] = useState('');
+  const [commentMessage, setCommentMessage] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [commentSubmitted, setCommentSubmitted] = useState(false);
+  const [myReaction, setMyReaction] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -29,6 +42,10 @@ export function ArticlePage() {
               views: increment(1)
             });
           }
+
+          if (slug) {
+            setMyReaction(localStorage.getItem(`reaction:${slug}`));
+          }
         }
       } catch (error) {
         console.error("Error fetching article:", error);
@@ -38,6 +55,65 @@ export function ArticlePage() {
     };
     if (slug) fetchArticle();
   }, [slug]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!article?.id) return;
+      try {
+        const q = query(collection(db, 'comments'), where('articleId', '==', article.id), where('approved', '==', true));
+        const snapshot = await getDocs(q);
+        const list = snapshot.docs
+          .map(d => ({ id: d.id, ...d.data() } as Comment))
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setComments(list);
+      } catch (e) {
+        console.error("Error fetching comments:", e);
+      }
+    };
+    fetchComments();
+  }, [article?.id]);
+
+  const handleReaction = async (key: string) => {
+    if (!article?.id || !slug) return;
+    if (myReaction) return; // one reaction per browser, per article
+
+    try {
+      await updateDoc(doc(db, 'articles', article.id), {
+        [`reactions.${key}`]: increment(1)
+      });
+      setArticle(prev => prev ? {
+        ...prev,
+        reactions: { ...(prev.reactions || {}), [key]: ((prev.reactions?.[key]) || 0) + 1 }
+      } : prev);
+      localStorage.setItem(`reaction:${slug}`, key);
+      setMyReaction(key);
+    } catch (e) {
+      console.error("Error saving reaction:", e);
+    }
+  };
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!article?.id || !commentName.trim() || !commentMessage.trim()) return;
+    setCommentSubmitting(true);
+    try {
+      await addDoc(collection(db, 'comments'), {
+        articleId: article.id,
+        articleSlug: article.slug,
+        name: commentName.trim().slice(0, 60),
+        message: commentMessage.trim().slice(0, 1000),
+        approved: false,
+        createdAt: new Date().toISOString(),
+      });
+      setCommentSubmitted(true);
+      setCommentName('');
+      setCommentMessage('');
+    } catch (e) {
+      console.error("Error posting comment:", e);
+    } finally {
+      setCommentSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchRelated = async () => {
@@ -150,6 +226,88 @@ export function ArticlePage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Reactions */}
+      <div className="mt-12 pt-8 border-t border-[var(--border-color)] flex flex-wrap items-center gap-3">
+        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-main)]/40 mr-2">React:</span>
+        {REACTIONS.map(r => {
+          const count = article.reactions?.[r.key] || 0;
+          const active = myReaction === r.key;
+          return (
+            <button
+              key={r.key}
+              onClick={() => handleReaction(r.key)}
+              disabled={!!myReaction}
+              title={r.label}
+              className={`flex items-center gap-2 px-3 py-2 border rounded-full text-sm transition-colors ${
+                active
+                  ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]'
+                  : 'border-[var(--border-color)] text-[var(--text-main)]/70 hover:border-[var(--border-hover)]'
+              } ${myReaction && !active ? 'opacity-40 cursor-not-allowed' : ''}`}
+            >
+              <span>{r.emoji}</span>
+              <span className="font-bold">{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Comments */}
+      <div className="mt-12 pt-8 border-t border-[var(--border-color)]">
+        <h3 className="text-2xl font-black italic tracking-tighter uppercase text-[var(--text-main)] mb-8 flex items-center gap-2">
+          <MessageCircle size={22} /> Comments {comments.length > 0 && `(${comments.length})`}
+        </h3>
+
+        {commentSubmitted ? (
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-6 text-[var(--text-main)]/70 text-sm mb-10">
+            Thanks! Your comment has been submitted and will appear once approved.
+          </div>
+        ) : (
+          <form onSubmit={handleCommentSubmit} className="bg-[var(--bg-card)] border border-[var(--border-color)] p-6 mb-10 space-y-4">
+            <input
+              type="text"
+              value={commentName}
+              onChange={(e) => setCommentName(e.target.value)}
+              placeholder="Your name"
+              required
+              maxLength={60}
+              className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-[var(--accent)]"
+            />
+            <textarea
+              value={commentMessage}
+              onChange={(e) => setCommentMessage(e.target.value)}
+              placeholder="Write a comment..."
+              required
+              maxLength={1000}
+              rows={4}
+              className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-[var(--accent)] resize-none"
+            />
+            <button
+              type="submit"
+              disabled={commentSubmitting}
+              className="bg-[var(--accent)] text-[var(--accent-text)] font-bold px-6 py-2 text-sm uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {commentSubmitting ? 'Posting...' : 'Post Comment'}
+            </button>
+          </form>
+        )}
+
+        {comments.length === 0 ? (
+          <p className="text-[var(--text-main)]/40 text-sm">No comments yet. Be the first to share your thoughts.</p>
+        ) : (
+          <div className="space-y-6">
+            {comments.map(c => (
+              <div key={c.id} className="border-b border-[var(--border-color)] pb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="font-bold text-[var(--text-main)] text-sm">{c.name}</span>
+                  <span className="text-[var(--text-main)]/40 text-xs">{format(new Date(c.createdAt), 'MMM d, yyyy')}</span>
+                </div>
+                <p className="text-[var(--text-main)]/70 text-sm leading-relaxed">{c.message}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Related Articles */}
