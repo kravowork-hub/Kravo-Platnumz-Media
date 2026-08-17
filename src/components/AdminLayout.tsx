@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, LogOut, Video, Share2, Trophy, Menu, X, Tags } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, Video, Share2, Trophy, Menu, X, Tags, MessageCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../lib/AuthContext';
 
@@ -21,6 +21,7 @@ export function AdminLayout() {
     { name: 'Categories', path: '/admin/categories', icon: Tags },
     { name: 'Live Scores', path: '/admin/scores', icon: Trophy },
     { name: 'Rankings', path: '/admin/rankings', icon: Trophy },
+    { name: 'Comments', path: '/admin/comments', icon: MessageCircle },
     { name: 'Live Video', path: '/admin/video', icon: Video },
     { name: 'Social Feeds', path: '/admin/social', icon: Share2 },
   ];
