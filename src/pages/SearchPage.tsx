@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { Article } from '../types';
 import { format } from 'date-fns';
 import { PlayCircle, Bell } from 'lucide-react';
+import { GridSkeleton } from '../components/Skeleton';
 
 export function SearchPage() {
   const [searchParams] = useSearchParams();
@@ -62,7 +63,7 @@ export function SearchPage() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-gray-500">Searching...</div>
+        <GridSkeleton count={10} />
       ) : articles.length === 0 ? (
         <div className="py-12 text-center text-gray-500">No results found for your query. Try different keywords.</div>
       ) : (

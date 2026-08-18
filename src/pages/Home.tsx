@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { PlayCircle, Bell, Circle } from 'lucide-react';
+import { GridSkeleton, Skeleton } from '../components/Skeleton';
 
 export function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -40,7 +41,14 @@ export function Home() {
   }, []);
 
   if (loading) {
-    return <div className="min-h-[50vh] flex items-center justify-center">Loading news...</div>;
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        <div className="w-full h-[60vh] md:h-[70vh] mb-8">
+          <Skeleton className="w-full h-full rounded-sm" />
+        </div>
+        <GridSkeleton count={10} />
+      </div>
+    );
   }
 
   const heroArticle = articles.find(a => a.isHero) || (articles.length > 0 ? articles[0] : null);

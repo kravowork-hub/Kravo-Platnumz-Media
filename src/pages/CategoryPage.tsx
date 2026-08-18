@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { Article } from '../types';
 import { format } from 'date-fns';
 import { PlayCircle, Bell } from 'lucide-react';
+import { GridSkeleton } from '../components/Skeleton';
 
 export function CategoryPage() {
   const { category } = useParams();
@@ -42,7 +43,7 @@ export function CategoryPage() {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-gray-500 text-lg font-medium">Loading {category} news...</div>
+        <GridSkeleton count={10} />
       ) : articles.length === 0 ? (
         <div className="py-20 text-center text-gray-500 text-lg font-medium">No articles found in this category yet.</div>
       ) : (
