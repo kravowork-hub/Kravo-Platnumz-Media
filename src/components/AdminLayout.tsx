@@ -30,21 +30,22 @@ export function AdminLayout() {
     <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-sans flex">
       {/* Sidebar */}
       <aside className={cn(
-        "w-64 bg-[var(--bg-card)] border-r border-[var(--border-color)] flex flex-col fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 md:relative md:translate-x-0",
+        "w-64 bg-gray-900 border-r border-gray-800 flex flex-col fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 md:relative md:translate-x-0",
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border-color)]">
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-800">
           <Link to="/" className="flex items-center gap-3">
             <img src="https://i.imgur.com/77gpoV1.png" alt="Platnumz Cuesport Logo" className="h-8 w-auto object-contain" />
             <span className="font-bold text-sm tracking-tight text-white whitespace-nowrap">Platnumz Cuesport</span>
           </Link>
           <button 
-            className="md:hidden text-white/50 hover:text-white"
+            className="md:hidden text-gray-400 hover:text-white"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <X size={20} />
           </button>
         </div>
+
         <nav className="flex-1 py-4 flex flex-col gap-1 px-3">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -58,21 +59,22 @@ export function AdminLayout() {
                   "flex items-center gap-3 px-3 py-2 text-[11px] uppercase tracking-widest font-bold rounded-sm transition-colors",
                   isActive 
                     ? "bg-white/10 text-white" 
-                    : "text-white/50 hover:bg-white/5 hover:text-white"
+                    : "text-gray-400 hover:bg-white/5 hover:text-white"
                 )}
               >
-                <Icon size={16} className={isActive ? "text-white" : "text-white/40"} />
+                <Icon size={16} className={isActive ? "text-white" : "text-gray-400"} />
                 {item.name}
               </Link>
             )
           })}
         </nav>
-        <div className="p-4 border-t border-[var(--border-color)]">
+
+        <div className="p-4 border-t border-gray-800">
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2 text-[11px] uppercase tracking-widest font-bold text-white/50 hover:bg-white/5 hover:text-white rounded-sm w-full transition-colors"
+            className="flex items-center gap-3 px-3 py-2 text-[11px] uppercase tracking-widest font-bold text-gray-400 hover:bg-white/5 hover:text-white rounded-sm w-full transition-colors"
           >
-            <LogOut size={16} className="text-white/40" />
+            <LogOut size={16} className="text-gray-400" />
             Sign Out
           </button>
         </div>
@@ -88,18 +90,18 @@ export function AdminLayout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-[var(--bg-card)] border-b border-[var(--border-color)] flex items-center justify-between px-4 md:px-6">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-3 md:hidden">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="text-white/50 hover:text-white"
+              className="text-gray-500 hover:text-gray-900"
             >
               <Menu size={24} />
             </button>
-            <span className="font-bold text-white uppercase tracking-widest text-[11px]">PLATNUMZ CUESPORT CMS</span>
+            <span className="font-bold text-gray-900 uppercase tracking-widest text-[11px]">PLATNUMZ CUESPORT CMS</span>
           </div>
           <div className="hidden md:block"></div>
-          <button onClick={handleLogout} className="p-2 text-white/50 hover:bg-white/10 rounded-sm">
+          <button onClick={handleLogout} className="p-2 text-gray-500 hover:bg-gray-100 rounded-sm">
             <LogOut size={20} />
           </button>
         </header>

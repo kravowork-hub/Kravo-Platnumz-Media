@@ -4,8 +4,8 @@ import { collection, query, where, getDocs, updateDoc, doc, increment, addDoc } 
 import { db } from '../lib/firebase';
 import { Article, Comment } from '../types';
 import { format } from 'date-fns';
-import { Facebook, Link as LinkIcon, Share2, MessageCircle } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import { Facebook, Link as LinkIcon, Share2, MessageCircle, PlayCircle, Bell } from 'lucide-react';
+import { useMetaTags } from '../lib/MetaProvider';
 
 const REACTIONS: { key: string; emoji: string; label: string }[] = [
   { key: 'like', emoji: '👍', label: 'Like' },
@@ -144,24 +144,15 @@ export function ArticlePage() {
 
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
+  useMetaTags({
+    title: article ? article.title : undefined,
+    description: article ? article.excerpt : undefined,
+    image: article ? article.coverImage : undefined,
+    type: 'article'
+  });
+
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Helmet>
-        <title>{article.title} - PLATNUMZ CUESPORT</title>
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.excerpt} />
-        {article.coverImage && (
-          <>
-            <meta property="og:image" content={article.coverImage} />
-            <meta name="twitter:image" content={article.coverImage} />
-          </>
-        )}
-        <meta name="twitter:title" content={article.title} />
-        <meta name="twitter:description" content={article.excerpt} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={currentUrl} />
-        <meta name="twitter:card" content="summary_large_image" />
-      </Helmet>
       <header className="mb-10 text-center max-w-3xl mx-auto">
         <div className="flex justify-center gap-2 mb-6">
           {article.categories.map(cat => (
@@ -314,29 +305,38 @@ export function ArticlePage() {
       {relatedArticles.length > 0 && (
         <div className="mt-20 pt-12 border-t border-[var(--border-color)]">
           <h3 className="text-2xl font-black italic tracking-tighter uppercase text-[var(--text-main)] mb-8">Related Articles</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {relatedArticles.map(related => (
-              <Link key={related.id} to={`/article/${related.slug}`} className="group flex flex-col h-full bg-[var(--bg-card)] border border-[var(--border-color)] p-4 hover:border-[var(--border-hover)] transition-colors cursor-pointer">
-                <div className="bg-[var(--bg-input)] aspect-video overflow-hidden relative mb-4 flex justify-center">
-                  {related.coverImage ? (
-                    <img src={related.coverImage} alt={related.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            {relatedArticles.map(article => (
+              <Link key={article.id} to={`/article/${article.slug}`} className="group flex flex-col bg-[var(--bg-card)] border border-[var(--border-color)] rounded-sm overflow-hidden hover:border-[var(--accent)] transition-colors">
+                <div className="w-full aspect-[4/3] relative flex justify-center bg-black overflow-hidden">
+                  {article.coverImage ? (
+                    <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
-                    <div className="absolute inset-0 bg-[#222] opacity-80" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #333 0, #333 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
+                    <div className="w-full h-full bg-[#111]"></div>
                   )}
-                  <div className="absolute top-4 left-4 bg-[var(--accent)] text-[var(--accent-text)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest shadow-sm">
-                    {related.categories[0]}
-                  </div>
+                  {article.categories.includes('Live Streams') && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <PlayCircle size={24} className="text-white opacity-90" />
+                    </div>
+                  )}
                 </div>
-                <div className="flex-1 flex flex-col">
-                  <h4 className="text-lg font-bold text-[var(--text-main)] mb-2 line-clamp-2 group-hover:text-[var(--accent)] transition-colors leading-tight">
-                    {related.title}
-                  </h4>
-                  <p className="text-[var(--text-main)]/60 text-sm line-clamp-2 mb-4 flex-1">
-                    {related.excerpt}
-                  </p>
-                  <div className="flex items-center text-[10px] font-bold text-[var(--text-main)]/40 uppercase tracking-widest mt-auto">
-                    <span>{format(new Date(related.createdAt), 'MMM d, yyyy')}</span>
+                <div className="flex-1 p-3 flex flex-col justify-start relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--accent)] truncate">
+                      {article.categories[0] || 'News'}
+                    </span>
+                    <span className="text-[9px] text-white/40 whitespace-nowrap">
+                      {format(new Date(article.createdAt), 'MMM d, yyyy')}
+                    </span>
                   </div>
+                  <h3 className="text-white/90 font-bold text-xs leading-snug line-clamp-3 group-hover:text-white transition-colors">
+                    {article.title}
+                  </h3>
+                  {article.categories.includes('Live Streams') && (
+                    <div className="absolute bottom-2 right-2 text-red-500">
+                      <Bell size={14} className="fill-red-500/20" />
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}

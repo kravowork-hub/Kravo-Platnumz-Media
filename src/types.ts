@@ -76,26 +76,9 @@ export interface RankingsData {
 }
 
 export const CATEGORIES = [
-  'Breaking News',
-  'Live Updates',
   'Upcoming Events',
   'Match Recaps',
-  'Player Profiles',
+  'Live Streams',
   'Features & Editorials',
-  'Gear & Tech',
-  'Tips & Techniques',
-  'Classic Matches',
-  'From the Archives',
-  'Bulawayo Pool',
-  'Harare Pool',
-  'Rest of Zimbabwe Pool',
-  'African Pool',
-  'Zimbabwean Heyball',
-  'African Heyball',
-  'World Heyball',
-  'Snooker',
-  'Blackball',
-  'Billiards',
-  'Match Statistics',
-  'Live Streams'
+  'Cuesport Types'
 ];

@@ -20,14 +20,14 @@ async function generateWithAI(prompt: string): Promise<string> {
     try {
       const groq = new Groq({ apiKey: groqApiKey, timeout: 15000 }); // 15 second timeout for robust fallback
       const response = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: "groq/compound-mini",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" }
       });
       const text = response.choices[0]?.message?.content;
       if (text) return text;
     } catch (error: any) {
-      console.error("Groq generation failed or timed out, falling back to Gemini:", error.message || error);
+      console.warn("Groq generation failed or timed out, falling back to Gemini:", error.message || error);
       lastError = error;
       if (!geminiApiKey) {
         throw new Error(`Groq failed and GEMINI_API_KEY is not configured for fallback. Groq Error: ${error.message}`);
@@ -40,7 +40,7 @@ async function generateWithAI(prompt: string): Promise<string> {
     try {
       const ai = new GoogleGenAI({ apiKey: geminiApiKey });
       const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
+        model: "gemini-3.6-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",

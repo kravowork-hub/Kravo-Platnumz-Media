@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Article } from '../types';
 import { format } from 'date-fns';
+import { PlayCircle, Bell } from 'lucide-react';
 
 export function CategoryPage() {
   const { category } = useParams();
@@ -45,31 +46,38 @@ export function CategoryPage() {
       ) : articles.length === 0 ? (
         <div className="py-20 text-center text-gray-500 text-lg font-medium">No articles found in this category yet.</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
           {articles.map(article => (
-            <Link key={article.id} to={`/article/${article.slug}`} className="group flex flex-col h-full bg-[var(--bg-card)] border border-white/5 p-4 hover:border-[var(--border-hover)] transition-colors cursor-pointer">
-              <div className="bg-[var(--bg-input)] overflow-hidden relative mb-4 flex justify-center">
+            <Link key={article.id} to={`/article/${article.slug}`} className="group flex flex-col bg-[var(--bg-card)] border border-[var(--border-color)] rounded-sm overflow-hidden hover:border-[var(--accent)] transition-colors">
+              <div className="w-full aspect-[4/3] relative flex justify-center bg-black overflow-hidden">
                 {article.coverImage ? (
-                  <img src={article.coverImage} alt={article.title} loading="lazy" className="max-w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500" />
+                  <img src={article.coverImage} alt={article.title} referrerPolicy="no-referrer" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <div className="absolute inset-0 bg-[#222] opacity-80" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #333 0, #333 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
+                  <div className="w-full h-full bg-[#111]"></div>
                 )}
-                <div className="absolute top-4 left-4 bg-[var(--accent)] text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-widest shadow-sm">
-                  {article.categories[0]}
-                </div>
+                {article.categories.includes('Live Streams') && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <PlayCircle size={24} className="text-white opacity-90" />
+                  </div>
+                )}
               </div>
-              <div className="flex-1 flex flex-col">
-                <h3 className="text-sm font-bold text-[var(--text-main)] mb-2 group-hover:text-[var(--text-main)] transition-colors leading-tight line-clamp-3">
+              <div className="flex-1 p-3 flex flex-col justify-start relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--accent)] truncate">
+                    {article.categories[0] || 'News'}
+                  </span>
+                  <span className="text-[9px] text-white/40 whitespace-nowrap">
+                    {format(new Date(article.createdAt), 'MMM d, yyyy')}
+                  </span>
+                </div>
+                <h3 className="text-white/90 font-bold text-xs leading-snug line-clamp-3 group-hover:text-white transition-colors">
                   {article.title}
                 </h3>
-                <p className="text-[11px] text-[var(--text-main)]/50 mb-4 line-clamp-2 flex-1 leading-relaxed">
-                  {article.excerpt}
-                </p>
-                <div className="flex items-center text-[10px] text-[var(--text-main)]/40 font-medium pt-4 border-t border-white/5">
-                  <span className="font-bold uppercase text-[var(--text-main)]/80">{article.authorName}</span>
-                  <span className="w-1 h-1 bg-white/20 rounded-full mx-2"></span>
-                  {format(new Date(article.createdAt), 'MMM d, yyyy')}
-                </div>
+                {article.categories.includes('Live Streams') && (
+                  <div className="absolute bottom-2 right-2 text-red-500">
+                    <Bell size={14} className="fill-red-500/20" />
+                  </div>
+                )}
               </div>
             </Link>
           ))}

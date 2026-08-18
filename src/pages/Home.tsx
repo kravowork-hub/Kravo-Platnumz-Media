@@ -54,8 +54,11 @@ export function Home() {
 
   const ArticleList = ({ items, title }: { items: Article[], title: string }) => (
     <div className="mb-10 px-4">
-      <div className="flex items-center gap-3 mb-6 border-b border-[var(--border-color)] pb-3">
+      <div className="flex items-center justify-between mb-6 border-b border-[var(--border-color)] pb-3">
         <h2 className="text-lg font-black uppercase tracking-widest text-[var(--text-main)]">{title}</h2>
+        <Link to="/search" className="flex items-center gap-1 text-[10px] md:text-xs font-bold uppercase tracking-widest text-[var(--text-main)]/50 hover:text-[var(--accent)] transition-colors">
+          All News <span className="p-1 bg-white/5 rounded-sm ml-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></span>
+        </Link>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
         {items.map(article => (

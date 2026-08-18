@@ -4,6 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Trophy, Circle, ArrowLeft } from 'lucide-react';
 import { LiveScoreData, TournamentData, TournamentMatch } from '../types';
+import { useMetaTags } from '../lib/MetaProvider';
 
 export function TournamentScores() {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +44,11 @@ export function TournamentScores() {
     }
     fetchScores();
   }, [id]);
+
+  useMetaTags({
+    title: tournament ? `${tournament.name} Live Scores` : 'Tournament Scores',
+    description: tournament ? `Follow live scores and match results for ${tournament.name}` : undefined
+  });
 
   if (loading) {
     return <div className="min-h-[50vh] flex items-center justify-center text-[var(--text-main)] text-[11px] font-bold uppercase tracking-widest">Loading...</div>;

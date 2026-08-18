@@ -6,6 +6,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './lib/AuthContext';
+import { MetaProvider } from './lib/MetaProvider';
 import { Layout } from './components/Layout';
 import { AdminLayout } from './components/AdminLayout';
 import { Home } from './pages/Home';
@@ -43,9 +44,9 @@ export default function App() {
     <HelmetProvider>
       <AuthProvider>
         <Router>
-          <ScrollToTop />
-          <ThemeSwitcher />
-        <Routes>
+          <MetaProvider>
+            <ScrollToTop />
+            <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
@@ -77,6 +78,7 @@ export default function App() {
             <Route path="comments" element={<AdminComments />} />
           </Route>
         </Routes>
+          </MetaProvider>
       </Router>
     </AuthProvider>
     </HelmetProvider>
